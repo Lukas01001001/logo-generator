@@ -34,7 +34,7 @@ export default function DeleteButton({
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="inline-block mt-2 bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded ml-2"
+        className=" bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
       >
         Delete
       </button>
