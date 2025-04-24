@@ -1,15 +1,6 @@
 import DeleteButton from "./DeleteButton";
 import Link from "next/link";
 
-// function bufferToBase64(buffer: Buffer | Uint8Array): string {
-//   let binary = "";
-//   const bytes = new Uint8Array(buffer);
-//   for (let i = 0; i < bytes.byteLength; i++) {
-//     binary += String.fromCharCode(bytes[i]);
-//   }
-//   return typeof window !== "undefined" ? window.btoa(binary) : "";
-// }
-
 function bufferToBase64(buffer: Uint8Array | Buffer): string {
   if (typeof window === "undefined") {
     // Server-side (Node.js)
@@ -41,7 +32,7 @@ export default function ClientList({ clients }: { clients: Client[] }) {
         <h1 className="text-3xl font-bold text-white">Client List</h1>
         <Link
           href="/clients/new"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800"
         >
           Add new client
         </Link>

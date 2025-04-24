@@ -12,8 +12,11 @@ export async function PUT(
     const industry = formData.get("industry") as string;
     const file = formData.get("logo") as File | null;
 
-    if (!name) {
-      return NextResponse.json({ error: "Missing name." }, { status: 400 });
+    if (!name || name.trim().length < 2) {
+      return NextResponse.json(
+        { error: "Name must be at least 2 characters." },
+        { status: 400 }
+      );
     }
 
     const updateData: any = { name, address, industry };
@@ -30,7 +33,11 @@ export async function PUT(
       data: updateData,
     });
 
-    return NextResponse.json({ success: true, updated });
+    return NextResponse.json({
+      success: true,
+      message: "Client updated successfully.",
+      updated,
+    });
   } catch (error) {
     console.error("Update error:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
@@ -45,7 +52,10 @@ export async function DELETE(
     await prisma.client.delete({
       where: { id: parseInt(params.id) },
     });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      message: "Client deleted successfully.",
+    });
   } catch (error) {
     console.error("Delete error:", error);
     return NextResponse.json(

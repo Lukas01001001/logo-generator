@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useToast } from "@/context/ToastContext";
 
 type Client = {
   id?: number;
@@ -28,8 +29,15 @@ export default function ClientForm({
 
   const router = useRouter();
 
+  const { showToast } = useToast();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (name.trim().length < 2) {
+      alert("Name must be at least 2 characters.");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("name", name);
@@ -45,12 +53,17 @@ export default function ClientForm({
       body: formData,
     });
 
+    const data = await res.json();
+
     if (res.ok) {
-      alert(isEdit ? "Client updated." : "Client saved successfully.");
+      showToast(
+        data.message || (isEdit ? "Client updated." : "Client saved."),
+        "success"
+      );
       router.push("/clients");
       if (onSuccess) onSuccess();
     } else {
-      alert("Error saving client.");
+      showToast(data.error || "Error saving client.", "error");
     }
   };
 
