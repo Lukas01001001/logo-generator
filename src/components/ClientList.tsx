@@ -1,14 +1,16 @@
 import Link from "next/link";
 
-function bufferToBase64(buffer: Uint8Array | Buffer): string {
+function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
+  const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
+
   if (typeof window === "undefined") {
     // Server-side (Node.js)
-    return Buffer.from(buffer).toString("base64");
+    return Buffer.from(byteArray).toString("base64");
   }
 
   // Client-side (browser)
   let binary = "";
-  const bytes = new Uint8Array(buffer);
+  const bytes = new Uint8Array(byteArray);
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
@@ -24,7 +26,15 @@ type Client = {
   logoType?: string | null;
 };
 
-export default function ClientList({ clients }: { clients: Client[] }) {
+export default function ClientList({ clients }: { clients?: Client[] }) {
+  if (!clients) {
+    return (
+      <div className="text-red-500">
+        ⚠️ Clients list not loaded. Please try again later.
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
@@ -37,7 +47,7 @@ export default function ClientList({ clients }: { clients: Client[] }) {
         </Link>
       </div>
 
-      {clients.length === 0 ? (
+      {!clients || clients.length === 0 ? (
         <p className="text-gray-400">No clients found.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

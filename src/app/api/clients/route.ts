@@ -3,6 +3,39 @@ import { prisma } from "@/lib/db";
 import { promises as fs } from "fs";
 import path from "path";
 
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const name = searchParams.get("name")?.toLowerCase() || "";
+  const industry = searchParams.get("industry")?.toLowerCase() || "";
+
+  const clients = await prisma.client.findMany({
+    where: {
+      AND: [
+        name
+          ? {
+              name: {
+                contains: name,
+                mode: "insensitive",
+              },
+            }
+          : {},
+        industry
+          ? {
+              industry: {
+                contains: industry,
+                mode: "insensitive",
+              },
+            }
+          : {},
+      ],
+    },
+    orderBy: { name: "asc" },
+    take: 20,
+  });
+
+  return NextResponse.json(clients);
+}
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
