@@ -7,14 +7,15 @@ type ConfirmModalProps = {
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
+  isDeleting?: boolean; // <-- opcjonalny props
 };
 
 export default function ConfirmModal({
   message,
   onConfirm,
   onCancel,
+  isDeleting = false, // domyślnie false
 }: ConfirmModalProps) {
-  // Disable scroll when modal is open
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -29,15 +30,17 @@ export default function ConfirmModal({
         <div className="flex justify-center gap-4">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded"
+            disabled={isDeleting} // nie pozwól anulować w trakcie
+            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded"
+            disabled={isDeleting}
+            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Delete
+            {isDeleting ? "Deleting..." : "Delete"}
           </button>
         </div>
       </div>

@@ -17,16 +17,26 @@ export default function DeleteButton({
   const { showToast } = useToast();
 
   const [showModal, setShowModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // <-- nowa zmienna
 
   const handleDelete = async () => {
-    const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
-    const data = await res.json();
+    setIsDeleting(true); // Zablokuj podczas kasowania
 
-    if (res.ok) {
-      showToast("Client deleted successfully.", "success");
-      router.refresh();
-    } else {
-      showToast(data.error || "Failed to delete client.", "error");
+    try {
+      const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+      const data = await res.json();
+
+      if (res.ok) {
+        showToast("Client deleted successfully.", "success");
+        setShowModal(false); // Zamknij modal
+        router.push("/clients"); // Przenieś do listy
+      } else {
+        showToast(data.error || "Failed to delete client.", "error");
+      }
+    } catch (error) {
+      showToast("Something went wrong.", "error");
+    } finally {
+      setIsDeleting(false); // Odblokuj po operacji
     }
   };
 
@@ -34,7 +44,7 @@ export default function DeleteButton({
     <>
       <button
         onClick={() => setShowModal(true)}
-        className=" bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
+        className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
       >
         Delete
       </button>
@@ -42,11 +52,9 @@ export default function DeleteButton({
       {showModal && (
         <ConfirmModal
           message={`Are you sure you want to delete ${name}?`}
-          onConfirm={() => {
-            handleDelete();
-            setShowModal(false);
-          }}
+          onConfirm={handleDelete}
           onCancel={() => setShowModal(false)}
+          isDeleting={isDeleting} // <-- podajemy stan
         />
       )}
     </>
