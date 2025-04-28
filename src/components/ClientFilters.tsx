@@ -36,28 +36,44 @@ export default function ClientFilters({ availableIndustries }: Props) {
     };
   }, [name, industry, updateQuery]);
 
+  const handleClear = () => {
+    setName("");
+    setIndustry("");
+    router.push(pathname); // usuń query params
+  };
+
   return (
-    <div className="mb-6 flex flex-col md:flex-row gap-4">
+    <div className="flex flex-col md:flex-row gap-4 w-full">
       <input
         type="text"
         placeholder="Search by name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="border p-2 rounded w-full md:w-1/2"
+        // className="border border-gray-600 bg-gray-800 text-white placeholder-gray-400 p-2 rounded flex-1"
+        className="w-full md:w-1/2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       <select
         value={industry}
         onChange={(e) => setIndustry(e.target.value)}
-        className="border p-2 rounded w-full md:w-1/2"
+        // className="border border-gray-600 bg-gray-800 text-white p-2 rounded flex-1"
+        className="w-full md:w-1/4 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option value="">All industries</option>
         {availableIndustries.map((ind) => (
-          <option key={ind} value={ind}>
+          <option key={ind} value={ind} className="bg-gray-800 text-white">
             {ind}
           </option>
         ))}
       </select>
+
+      <button
+        onClick={handleClear}
+        className="border border-gray-500 text-gray-300 hover:bg-gray-700 hover:text-white p-2 rounded md:w-auto"
+        //  className="border border-gray-500 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md"
+      >
+        Clear filters
+      </button>
     </div>
   );
 }

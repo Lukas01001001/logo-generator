@@ -36,15 +36,16 @@ export default function ClientList({ clients }: { clients?: Client[] }) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    // <div className="max-w-4xl mx-auto p-6">
+    <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-white">Client List</h1>
-        <Link
+        {/* <Link
           href="/clients/new"
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-800"
         >
           Add new client
-        </Link>
+        </Link> */}
       </div>
 
       {!clients || clients.length === 0 ? (
