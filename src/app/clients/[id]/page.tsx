@@ -1,11 +1,12 @@
-// src/app/clients/[id]/page.tsximport { prisma } from "@/lib/db";
+// src/app/clients/[id]/page.tsx
+
 import Link from "next/link";
-import DeleteButton from "@/components/DeleteButton";
 import { notFound } from "next/navigation";
 
-// type Props = {
-//     params: { id: string }; //without Promise
-//   };
+import DeleteButton from "@/components/DeleteButton";
+import BackToListButton from "@/components/BackToListButton";
+import { prisma } from "@/lib/db";
+
 type Props = {
   params: Promise<{ id: string }>;
 };
@@ -50,18 +51,15 @@ export default async function ClientDetailPage({ params }: Props) {
       </p>
 
       <div className="flex justify-center gap-4">
-        <Link
-          href="/clients"
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          ← Back to list
-        </Link>
+        <BackToListButton />
+
         <Link
           href={`/clients/${client.id}/edit`}
           className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
         >
           Edit
         </Link>
+
         <DeleteButton id={client.id} name={client.name} />
       </div>
     </div>

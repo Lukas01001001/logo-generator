@@ -1,3 +1,5 @@
+// src/components/ClientFilters.tsx
+
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -16,7 +18,7 @@ export default function ClientFilters({ availableIndustries }: Props) {
   const [name, setName] = useState(searchParams.get("name") || "");
   const [industry, setIndustry] = useState(searchParams.get("industry") || "");
 
-  // Profesjonalna aktualizacja z debounce i anulowaniem
+  // Update with debounce and cancel
   const updateQuery = useCallback(
     debounce((newName: string, newIndustry: string) => {
       const params = new URLSearchParams();
@@ -30,7 +32,7 @@ export default function ClientFilters({ availableIndustries }: Props) {
   useEffect(() => {
     updateQuery(name, industry);
 
-    // 💣 Najważniejsze: cancel debounce on unmount
+    // 💣 Most important: cancel debounce on unmount
     return () => {
       updateQuery.cancel();
     };
@@ -39,7 +41,7 @@ export default function ClientFilters({ availableIndustries }: Props) {
   const handleClear = () => {
     setName("");
     setIndustry("");
-    router.push(pathname); // usuń query params
+    router.push(pathname); // delete query params
   };
 
   return (
@@ -70,7 +72,7 @@ export default function ClientFilters({ availableIndustries }: Props) {
       <button
         onClick={handleClear}
         className="border border-gray-500 text-gray-300 hover:bg-gray-700 hover:text-white p-2 rounded md:w-auto"
-        //  className="border border-gray-500 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md"
+        // className="border border-gray-500 text-gray-300 hover:bg-gray-700 hover:text-white px-4 py-2 rounded-md"
       >
         Clear filters
       </button>
