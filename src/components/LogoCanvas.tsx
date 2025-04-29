@@ -25,7 +25,10 @@ function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
 
 export default function LogoCanvas({ clients }: Props) {
   return (
-    <div className="relative w-full h-[600px] border border-gray-600 bg-black rounded">
+    <div
+      id="logo-canvas"
+      className="relative w-full h-[600px] border border-gray-600 bg-black rounded"
+    >
       {clients.map((client, index) => {
         const base64 =
           client.logoBlob && client.logoType
