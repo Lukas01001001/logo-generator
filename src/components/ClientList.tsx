@@ -3,25 +3,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import Spinner from "./ui/Spinner";
-
-function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
-  const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
-
-  if (typeof window === "undefined") {
-    return Buffer.from(byteArray).toString("base64");
-  }
-
-  let binary = "";
-  const bytes = new Uint8Array(byteArray);
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
-}
+import ClientCard from "./ClientCard";
 
 type Client = {
   id: number;
@@ -33,11 +18,15 @@ type Client = {
 };
 
 export default function ClientList() {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [clients, setClients] = useState<Client[] | null>(null);
 
   const [queryString, setQueryString] = useState("");
+
+  // 🔥 NEW: selected clients
+  const [selectedClients, setSelectedClients] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -74,6 +63,23 @@ export default function ClientList() {
     return <div className="text-gray-400">No clients found.</div>;
   }
 
+  // 🔥 NEW: toggle selection
+  const toggleClientSelection = (id: number) => {
+    setSelectedClients((prev) =>
+      prev.includes(id)
+        ? prev.filter((clientId) => clientId !== id)
+        : [...prev, id]
+    );
+  };
+
+  // 🔥 NEW: generate logo forest
+  const handleGenerate = () => {
+    if (selectedClients.length > 0) {
+      const idsParam = selectedClients.join(",");
+      router.push(`/generate?ids=${idsParam}`);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -82,36 +88,30 @@ export default function ClientList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {clients.map((client) => (
-          <Link
+          <ClientCard
             key={client.id}
-            href={`/clients/${client.id}${
-              queryString ? `?${queryString}` : ""
-            }`}
-            className="border rounded p-4 shadow bg-gray-800 flex items-center space-x-4 hover:shadow-lg hover:bg-gray-700 transition cursor-pointer"
-          >
-            {client.logoBlob && client.logoType ? (
-              <img
-                src={`data:${client.logoType};base64,${bufferToBase64(
-                  client.logoBlob
-                )}`}
-                alt={`${client.name} logo`}
-                className="w-20 h-20 object-contain"
-              />
-            ) : (
-              <div className="w-20 h-20 bg-gray-100 flex items-center justify-center text-sm text-gray-500">
-                No Logo
-              </div>
-            )}
-
-            <div>
-              <p className="text-lg font-semibold text-white">{client.name}</p>
-              {client.industry && (
-                <p className="text-gray-300 text-sm">{client.industry}</p>
-              )}
-            </div>
-          </Link>
+            id={client.id}
+            name={client.name}
+            industry={client.industry}
+            logoBlob={client.logoBlob}
+            logoType={client.logoType}
+            selected={selectedClients.includes(client.id)}
+            toggle={() => toggleClientSelection(client.id)}
+            queryString={queryString}
+          />
         ))}
       </div>
+      {/* 🔥 NEW: generate button */}
+      {selectedClients.length > 0 && (
+        <div className="flex justify-center mt-10">
+          <button
+            onClick={handleGenerate}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg"
+          >
+            Generate Logo Forest
+          </button>
+        </div>
+      )}
     </div>
   );
 }
