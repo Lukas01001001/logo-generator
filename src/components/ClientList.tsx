@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+import Spinner from "./ui/Spinner";
+
 function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
   const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
 
@@ -64,7 +66,8 @@ export default function ClientList() {
     fetchClients();
   }, [searchParams]);
   if (clients === null) {
-    return <div className="text-gray-400">Loading clients...</div>;
+    // return <div className="text-gray-400">Loading clients...</div>;
+    return <Spinner />;
   }
 
   if (clients.length === 0) {
