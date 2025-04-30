@@ -28,13 +28,12 @@ export default function DownloadButton() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
-      <button
-        onClick={handleDownload}
-        className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all text-base md:text-lg"
-      >
-        Download PNG
-      </button>
-    </div>
+    <button
+      onClick={handleDownload}
+      className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all text-base md:text-lg"
+      // className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded shadow"
+    >
+      Download PNG
+    </button>
   );
 }

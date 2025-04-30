@@ -86,8 +86,18 @@ export default function ClientList() {
   // 🔥 NEW: generate logo forest
   const handleGenerate = () => {
     if (selectedClients.length > 0) {
-      const idsParam = selectedClients.join(",");
-      router.push(`/generate?ids=${idsParam}`);
+      // const idsParam = selectedClients.join(",");
+      // router.push(`/generate?ids=${idsParam}`);
+      const query = new URLSearchParams();
+      query.set("ids", selectedClients.join(","));
+
+      const name = searchParams.get("name");
+      const industry = searchParams.get("industry");
+
+      if (name) query.set("name", name);
+      if (industry) query.set("industry", industry);
+
+      router.push(`/generate?${query.toString()}`);
     }
   };
 

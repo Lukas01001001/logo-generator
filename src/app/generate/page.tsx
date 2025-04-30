@@ -8,13 +8,18 @@ import DownloadButton from "@/components/DownloadButton";
 import Link from "next/link";
 
 type Props = {
-  searchParams: Promise<{ ids?: string }>;
+  searchParams: Promise<{ ids?: string; name?: string; industry?: string }>;
 };
 
 export default async function GeneratePage({ searchParams }: Props) {
-  const { ids } = await searchParams;
+  const { ids, name, industry } = await searchParams;
 
   if (!ids) return notFound();
+
+  const params = new URLSearchParams();
+  params.set("ids", ids);
+  if (name) params.set("name", name);
+  if (industry) params.set("industry", industry);
 
   const idList = ids.split(",").map((id) => parseInt(id.trim()));
   const clients = await prisma.client.findMany({
@@ -25,21 +30,27 @@ export default async function GeneratePage({ searchParams }: Props) {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold text-center text-white mb-6">
-        Logo Forest
-      </h1>
+      {/* Top navigation with title and buttons */}
+      <div className="flex items-center justify-between mb-8">
+        {/* Back button */}
+        <Link
+          href={`/clients?${params.toString()}`}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+        >
+          ← Back to List
+        </Link>
 
-      <Link
-        // href={`clients?ids=${ids}`}
-        href={`/clients?ids=${encodeURIComponent(ids)}`}
-        className="fixed bottom-6 left-6 z-50 bg-blue-600 hover:bg-blue-700 text-hite font-bold py-3 px-6 rounded-lg shadow-lg transition-all text-base md:text-lg"
-      >
-        ← Back to List
-      </Link>
+        {/* Title in the middle */}
+        <h1 className="text-3xl font-bold text-white text-center flex-1">
+          Logo Forest
+        </h1>
 
+        {/* Download button */}
+        <DownloadButton />
+      </div>
+
+      {/* Canvas with logos */}
       <LogoCanvas clients={clients} />
-
-      <DownloadButton />
     </div>
   );
 }
