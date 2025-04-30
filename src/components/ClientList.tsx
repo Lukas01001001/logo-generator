@@ -29,6 +29,17 @@ export default function ClientList() {
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
 
   useEffect(() => {
+    const ids = searchParams.get("ids");
+    if (ids) {
+      const parsed = ids
+        .split(",")
+        .map((id) => parseInt(id.trim()))
+        .filter((id) => !isNaN(id));
+      setSelectedClients(parsed);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     const fetchClients = async () => {
       try {
         const params = new URLSearchParams();
