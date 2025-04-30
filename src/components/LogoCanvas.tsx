@@ -15,12 +15,24 @@ type Props = {
 
 function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
   const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
+
+  // const binary = String.fromCharCode(...new Uint8Array(byteArray));
   let binary = "";
   const bytes = new Uint8Array(byteArray);
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return window.btoa(binary);
+  // return window.btoa(binary);
+  // }
+
+  // Użyj odpowiedniego API w zależności od środowiska
+  if (typeof window === "undefined") {
+    // Na serwerze
+    return Buffer.from(binary, "binary").toString("base64");
+  } else {
+    // W przeglądarce
+    return window.btoa(binary);
+  }
 }
 
 export default function LogoCanvas({ clients }: Props) {
