@@ -29,14 +29,6 @@ export default async function GeneratePage({ searchParams }: Props) {
       </h1>
 
       <LogoCanvas clients={clients} />
-      {/*  <div className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={handleDownload}
-          className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded shadow-lg transition"
-        >
-          Download PNG
-        </button>
-      </div> */}
 
       <DownloadButton />
     </div>

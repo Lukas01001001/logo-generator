@@ -27,7 +27,7 @@ export default function LogoCanvas({ clients }: Props) {
   return (
     <div
       id="logo-canvas"
-      className="relative w-full h-[600px] border border-gray-600 bg-black rounded"
+      className="relative w-full h-[800px] border border-gray-600 bg-black rounded"
     >
       {clients.map((client, index) => {
         const base64 =

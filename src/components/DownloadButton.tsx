@@ -4,23 +4,34 @@
 
 import { toPng } from "html-to-image";
 
+import { useToast } from "@/context/ToastContext";
+
 export default function DownloadButton() {
+  const { showToast } = useToast();
+
   const handleDownload = async () => {
     const node = document.getElementById("logo-canvas");
     if (!node) return;
 
-    const dataUrl = await toPng(node);
-    const link = document.createElement("a");
-    link.download = "logo-forest.png";
-    link.href = dataUrl;
-    link.click();
+    try {
+      const dataUrl = await toPng(node);
+      const link = document.createElement("a");
+      link.download = "logo-forest.png";
+      link.href = dataUrl;
+      link.click();
+
+      showToast("Saved!", "success");
+    } catch (error) {
+      showToast("Download failed", "error");
+      console.error("Download error", error);
+    }
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
       <button
         onClick={handleDownload}
-        className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded shadow-lg transition"
+        className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all text-base md:text-lg"
       >
         Download PNG
       </button>
