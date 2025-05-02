@@ -83,6 +83,11 @@ export default function ClientList() {
     );
   };
 
+  // 🔥 RESET toggle selection
+  const resetClientSelection = () => {
+    setSelectedClients([]);
+  };
+
   // 🔥 NEW: generate logo forest
   const handleGenerate = () => {
     if (selectedClients.length > 0) {
@@ -105,6 +110,14 @@ export default function ClientList() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-white">Client List</h1>
+        {selectedClients.length > 0 && (
+          <button
+            onClick={resetClientSelection}
+            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg"
+          >
+            Reset Checkbox
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
