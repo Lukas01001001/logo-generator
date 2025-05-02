@@ -47,7 +47,7 @@ export default function ClientFilters({ availableIndustries }: Props) {
   return (
     <div className="flex flex-col md:flex-row gap-4 w-full">
       <input
-        type="text"
+        type="search"
         placeholder="Search by name"
         value={name}
         onChange={(e) => setName(e.target.value)}
