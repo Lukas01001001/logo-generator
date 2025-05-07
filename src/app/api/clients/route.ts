@@ -1,3 +1,5 @@
+// src/api/clients/route.ts
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { promises as fs } from "fs";
@@ -7,6 +9,9 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const name = searchParams.get("name")?.toLowerCase() || "";
   const industry = searchParams.get("industry")?.toLowerCase() || "";
+
+  const skip = parseInt(searchParams.get("skip") || "0");
+  const limit = parseInt(searchParams.get("limit") || "20");
 
   const clients = await prisma.client.findMany({
     where: {
@@ -30,7 +35,8 @@ export async function GET(req: Request) {
       ],
     },
     orderBy: { name: "asc" },
-    take: 20,
+    skip,
+    take: limit,
   });
 
   return NextResponse.json(clients);

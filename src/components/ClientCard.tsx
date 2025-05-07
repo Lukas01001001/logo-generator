@@ -16,18 +16,19 @@ type Props = {
 };
 
 function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
+  // We make sure we have an array of bytes
   const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
+  const bytes = new Uint8Array(byteArray);
 
   if (typeof window === "undefined") {
-    return Buffer.from(byteArray).toString("base64");
+    return Buffer.from(bytes).toString("base64"); // for Node.js
   }
 
   let binary = "";
-  const bytes = new Uint8Array(byteArray);
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return window.btoa(binary);
+  return window.btoa(binary); // for browser
 }
 
 export default function ClientCard({
@@ -40,6 +41,11 @@ export default function ClientCard({
   toggle,
   queryString,
 }: Props) {
+  const logoUrl =
+    logoBlob && logoType
+      ? `data:${logoType};base64,${bufferToBase64(logoBlob)}`
+      : null;
+
   return (
     <div className="flex items-center gap-4 border rounded shadow bg-gray-800 hover:bg-gray-700 transition p-4">
       {/* Checkbox */}
@@ -48,17 +54,18 @@ export default function ClientCard({
         checked={selected}
         onChange={toggle}
         className="w-5 h-5 accent-blue-500"
+        title="Select client"
       />
 
-      {/* Card as link */}
+      {/* Entire card as a link */}
       <Link
         href={`/clients/${id}${queryString ? `?${queryString}` : ""}`}
         className="flex items-center gap-4 flex-1"
       >
         {/* Logo */}
-        {logoBlob && logoType ? (
+        {logoUrl ? (
           <img
-            src={`data:${logoType};base64,${bufferToBase64(logoBlob)}`}
+            src={logoUrl}
             alt={`${name} logo`}
             className="w-20 h-20 object-contain"
           />
