@@ -8,6 +8,7 @@ import { useMemo } from "react";
 
 import Spinner from "./ui/Spinner";
 import ClientCard from "./ClientCard";
+import EmptyState from "./ui/EmptyState";
 
 type Client = {
   id: number;
@@ -179,9 +180,10 @@ export default function ClientList() {
       </div>
 
       {!loading && clients.length === 0 && (
-        <p className="text-center text-gray-400 text-lg mt-10">
-          No clients found matching the selected filters.
-        </p>
+        <EmptyState
+          message="No clients found matching the selected filters."
+          // onClear={() => router.push("/clients")} //
+        />
       )}
 
       {loading && (
