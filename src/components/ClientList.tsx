@@ -9,6 +9,7 @@ import { useMemo } from "react";
 import Spinner from "./ui/Spinner";
 import ClientCard from "./ClientCard";
 import EmptyState from "./ui/EmptyState";
+import ClientListHeader from "./ClientListHeader";
 
 type Client = {
   id: number;
@@ -147,18 +148,11 @@ export default function ClientList() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-white">Client List</h1>
-        {selectedClients.length > 0 && (
-          <button
-            onClick={resetClientSelection}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg"
-          >
-            Reset Checkbox
-          </button>
-        )}
-      </div>
-
+      <ClientListHeader
+        selectedCount={selectedClients.length}
+        onReset={resetClientSelection}
+        onGenerate={handleGenerate}
+      />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {clients.map((client, index) => {
           const isLast = index === clients.length - 1;
@@ -189,17 +183,6 @@ export default function ClientList() {
       {loading && (
         <div className="flex justify-center my-6">
           <Spinner />
-        </div>
-      )}
-
-      {selectedClients.length > 0 && (
-        <div className="flex justify-center mt-10">
-          <button
-            onClick={handleGenerate}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg"
-          >
-            Generate Logo Forest
-          </button>
         </div>
       )}
     </div>
