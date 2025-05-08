@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       type = file.type;
     } else {
       // use default logo
-      const defaultPath = path.join(process.cwd(), "public/default-logo.png");
+      const defaultPath = path.join(process.cwd(), "public/Tux_Default.png");
       buffer = await fs.readFile(defaultPath);
       type = "image/png";
     }

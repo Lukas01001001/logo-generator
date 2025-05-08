@@ -1,8 +1,8 @@
 // src/components/ui/EmptyState.tsx
 
 type Props = {
-  //message: string;
-  onClear?: () => void;
+  message: string;
+  // onClear?: () => void;
 };
 
 export default function EmptyState({ message /*, onClear */ }: Props) {
