@@ -5,6 +5,7 @@ import ClientList from "@/components/ClientList";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 
+// SSR - industry
 export default async function ClientsPage() {
   const industriesData = await prisma.client.findMany({
     select: { industry: true },

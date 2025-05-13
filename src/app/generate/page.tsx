@@ -31,17 +31,17 @@ export default async function GeneratePage({ searchParams }: Props) {
   return (
     <div className="p-8">
       {/* Top navigation with title and buttons */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         {/* Back button */}
         <Link
           href={`/clients?${params.toString()}`}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow text-center"
         >
           ← Back to List
         </Link>
 
         {/* Title in the middle */}
-        <h1 className="text-3xl font-bold text-white text-center flex-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white text-center flex-1">
           Logo Forest
         </h1>
 

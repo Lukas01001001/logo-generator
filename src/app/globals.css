@@ -25,6 +25,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+body.export-mode img.with-border {
+  border: none !important;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;

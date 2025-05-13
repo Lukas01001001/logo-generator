@@ -7,7 +7,7 @@ import path from "path";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Wczytaj plik z public/
+  // Load a file from public/
   const logoPath = path.join(process.cwd(), "public/Tux_Default.png");
   const logoBuffer = await fs.readFile(logoPath);
   const logoType = "image/png";
