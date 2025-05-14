@@ -39,12 +39,24 @@ export default function LogoCanvas({ clients }: Props) {
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(600);
 
+  // INPUT FIELD state height and width
+  const [inputCanvasWidth, setInputCanvasWidth] = useState("0");
+  const [inputCanvasHeight, setInputCanvasHeight] = useState("600");
+
+  // Input explanation.
+  const [isHeightFocused, setIsHeightFocused] = useState(false);
+  const [isWidthFocused, setIsWidthFocused] = useState(false);
+
   // NEW: Store positions and sizes for each client
   const [layout, setLayout] = useState<Record<number, PositionAndSize>>({});
 
   useEffect(() => {
     const initialWidth = Math.min(window.innerWidth - 40, 1200);
     setCanvasWidth(initialWidth);
+
+    // INPUT FIELDS
+    setInputCanvasWidth(initialWidth.toString());
+    setInputCanvasHeight("600");
 
     // Set default layout
     const defaultLayout: Record<number, PositionAndSize> = {};
@@ -84,49 +96,119 @@ export default function LogoCanvas({ clients }: Props) {
 
   return (
     <div className="mb-8">
-      {/* Sliders and reset button */}
+      {/* Sliders */}
       <div className="flex flex-col sm:flex-row gap-6 mb-4 text-white">
         <div className="flex items-center gap-2 flex-1">
           <label>Canvas Height:</label>
           <input
             type="range"
-            min={300}
+            min={240}
             max={2500}
             value={canvasHeight}
-            onChange={(e) => setCanvasHeight(parseInt(e.target.value))}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              setCanvasHeight(value);
+              setInputCanvasHeight(e.target.value);
+            }}
             className="flex-1"
           />
           <input
             type="number"
-            min={300}
+            min={240}
             max={2500}
-            value={canvasHeight}
-            onChange={(e) => setCanvasHeight(parseInt(e.target.value))}
+            value={inputCanvasHeight}
+            onChange={(e) => {
+              // Remove leading zeros
+              const raw = e.target.value.replace(/^0+(?=\d)/, "");
+
+              setInputCanvasHeight(raw); //Allow the user to enter even an empty string
+            }}
+            onFocus={() => setIsHeightFocused(true)}
+            onBlur={() => {
+              setIsHeightFocused(false);
+              const value = parseInt(inputCanvasHeight);
+              if (isNaN(value)) {
+                // If empty or incorrect, return to last correct one
+                setInputCanvasHeight(canvasHeight.toString());
+                return;
+              }
+
+              //Clamp to range
+              const clamped = Math.max(240, Math.min(2500, value));
+              setCanvasHeight(clamped);
+              setInputCanvasHeight(clamped.toString());
+            }}
             className="w-20 px-2 py-1 rounded text-white border border-amber-50"
           />
+
           <span>px</span>
         </div>
+        {isHeightFocused && (
+          <p
+            className="text-sm text-gray-400 mt-2 ml-1 italic"
+            aria-live="polite"
+          >
+            ⚠️ Value will be applied after leaving the field
+          </p>
+        )}
 
         <div className="flex items-center gap-2 flex-1">
           <label>Canvas Width:</label>
           <input
             type="range"
-            min={300}
+            min={240}
             max={2500}
             value={canvasWidth}
-            onChange={(e) => setCanvasWidth(parseInt(e.target.value))}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              setCanvasWidth(value);
+              setInputCanvasWidth(e.target.value);
+            }}
             className="flex-1"
           />
           <input
             type="number"
-            min={300}
+            min={240}
             max={2500}
-            value={canvasWidth}
-            onChange={(e) => setCanvasWidth(parseInt(e.target.value))}
+            value={inputCanvasWidth}
+            onChange={(e) => {
+              const raw = e.target.value.replace(/^0+(?=\d)/, "");
+              setInputCanvasWidth(raw); // Allow the user to enter even an empty string
+            }}
+            onFocus={() => setIsWidthFocused(true)}
+            onBlur={() => {
+              setIsWidthFocused(false);
+              const value = parseInt(inputCanvasWidth);
+              if (isNaN(value)) {
+                // If empty or incorrect, return to last correct one
+                setInputCanvasWidth(canvasWidth.toString());
+                return;
+              }
+
+              // Clamp to range
+              const clamped = Math.max(240, Math.min(2500, value));
+              setCanvasWidth(clamped);
+              setInputCanvasWidth(clamped.toString());
+            }}
             className="w-20 px-2 py-1 rounded text-white border border-amber-50"
           />
+
           <span>px</span>
+          {/* <span
+            title="Value will be applied after leaving the field"
+            className="text-gray-400 cursor-help ml-1"
+          >
+            ⓘ
+          </span> */}
         </div>
+        {isWidthFocused && (
+          <p
+            className="text-sm text-gray-400 mt-2 ml-1 italic"
+            aria-live="polite"
+          >
+            ⚠️ Value will be applied after leaving the field
+          </p>
+        )}
 
         {/* Reset button */}
         <button
@@ -139,7 +221,7 @@ export default function LogoCanvas({ clients }: Props) {
 
       {/* Canvas area */}
       <div
-        className="relative border border-gray-600 bg-black rounded overflow-x-auto"
+        className="relative border border-yellow-600 bg-black rounded overflow-x-auto"
         style={{ width: canvasWidth, height: canvasHeight }}
         id="logo-canvas"
       >
