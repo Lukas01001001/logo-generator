@@ -16,8 +16,8 @@ type Client = {
   name: string;
   address?: string | null;
   industry?: { name: string } | null;
-  logoBlob?: Buffer;
-  logoType?: string;
+  logoBlob?: Uint8Array | null;
+  logoType?: string | null;
 };
 
 type Props = {
