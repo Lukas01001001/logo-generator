@@ -25,6 +25,10 @@ const LIMIT = 10;
 export default function ClientList() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  // Layout
+  const [layout, setLayout] = useState<"grid" | "list">("grid");
+  const toggleLayout = () =>
+    setLayout((prev) => (prev === "grid" ? "list" : "grid"));
 
   const [clients, setClients] = useState<Client[]>([]);
   //
@@ -152,8 +156,15 @@ export default function ClientList() {
         selectedCount={selectedClients.length}
         onReset={resetClientSelection}
         onGenerate={handleGenerate}
+        layout={layout} // NEW
+        onToggleLayout={toggleLayout} // NEW
       />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
+      <div
+        className={`grid gap-6 ${
+          layout === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+        }`}
+      >
         {clients.map((client, index) => {
           const isLast = index === clients.length - 1;
           return (
