@@ -167,6 +167,7 @@ export default function ClientList() {
                 selected={selectedClients.includes(client.id)}
                 toggle={() => toggleClientSelection(client.id)}
                 queryString={queryString}
+                selectedIds={selectedClients}
               />
             </div>
           );

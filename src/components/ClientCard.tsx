@@ -3,6 +3,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 
 type Props = {
   id: number;
@@ -13,22 +14,23 @@ type Props = {
   selected: boolean;
   toggle: () => void;
   queryString: string;
+  selectedIds: number[]; // <--
 };
 
-function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
-  // We make sure we have an array of bytes
+// function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
+function bufferToBase64(buffer: Uint8Array | Buffer): string {
   const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
   const bytes = new Uint8Array(byteArray);
 
   if (typeof window === "undefined") {
-    return Buffer.from(bytes).toString("base64"); // for Node.js
+    return Buffer.from(bytes).toString("base64");
   }
 
   let binary = "";
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return window.btoa(binary); // for browser
+  return window.btoa(binary);
 }
 
 export default function ClientCard({
@@ -40,7 +42,16 @@ export default function ClientCard({
   selected,
   toggle,
   queryString,
+  selectedIds, // <-
 }: Props) {
+  const linkHref = useMemo(() => {
+    const query = new URLSearchParams(queryString);
+    if (selectedIds.length > 0) {
+      query.set("ids", selectedIds.join(","));
+    }
+    return `/clients/${id}${query.toString() ? `?${query.toString()}` : ""}`;
+  }, [id, queryString, selectedIds]);
+
   const logoUrl =
     logoBlob && logoType
       ? `data:${logoType};base64,${bufferToBase64(logoBlob)}`
@@ -48,7 +59,6 @@ export default function ClientCard({
 
   return (
     <div className="flex items-center gap-4 border rounded shadow bg-gray-800 hover:bg-gray-700 transition p-4">
-      {/* Checkbox */}
       <input
         type="checkbox"
         checked={selected}
@@ -57,12 +67,7 @@ export default function ClientCard({
         title="Select client"
       />
 
-      {/* Entire card as a link */}
-      <Link
-        href={`/clients/${id}${queryString ? `?${queryString}` : ""}`}
-        className="flex items-center gap-4 flex-1"
-      >
-        {/* Logo */}
+      <Link href={linkHref} className="flex items-center gap-4 flex-1">
         {logoUrl ? (
           <img
             src={logoUrl}
@@ -75,7 +80,6 @@ export default function ClientCard({
           </div>
         )}
 
-        {/* Text */}
         <div>
           <p className="text-lg font-semibold text-white">{name}</p>
           {industry && <p className="text-gray-300 text-sm">{industry}</p>}

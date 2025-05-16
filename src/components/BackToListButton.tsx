@@ -9,15 +9,17 @@ export default function BackToListButton() {
   const searchParams = useSearchParams();
 
   const handleClick = () => {
-    // If we have enough history, go back
-    if (typeof window !== "undefined" && window.history.length > 2) {
-      router.back();
-    } else {
-      // If not, build a URL with the current filters
-      const params = searchParams.toString();
-      const href = params ? `/clients?${params}` : `/clients`;
-      router.push(href);
-    }
+    const name = searchParams.get("name");
+    const industry = searchParams.get("industry");
+    const ids = searchParams.get("ids");
+
+    const query = new URLSearchParams();
+
+    if (name) query.set("name", name);
+    if (industry) query.set("industry", industry);
+    if (ids) query.set("ids", ids);
+
+    router.push(`/clients${query.toString() ? `?${query.toString()}` : ""}`);
   };
 
   return (
