@@ -1,26 +1,26 @@
-// app/clients/page.tsx
+// src/app/clients/page.tsx
 
 import ClientFilters from "@/components/ClientFilters";
 import ClientList from "@/components/ClientList";
 import { prisma } from "@/lib/db";
+//import type { Industry } from "@prisma/client";
 import Link from "next/link";
 
 // SSR - industry
 export default async function ClientsPage() {
-  const industriesData = await prisma.client.findMany({
-    select: { industry: true },
-    distinct: ["industry"],
-    where: { industry: { not: null } },
-  });
+  //const industries: Industry[] = await prisma.industry.findMany();
+  const industries: { name: string }[] = await prisma.industry.findMany();
 
-  const industries = industriesData.map((item) => item.industry!) as string[];
+  // const industries = await prisma.industry.findMany({
+  //   orderBy: { name: "asc" },
+  // });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       {/* TOP BAR */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
         <div className="flex flex-col md:flex-row md:items-center w-full gap-4">
-          <ClientFilters availableIndustries={industries} />
+          <ClientFilters availableIndustries={industries.map((i) => i.name)} />
         </div>
         {/* BUTTON NEW CLIENT*/}
         <Link

@@ -17,10 +17,10 @@ export default function DeleteButton({
   const { showToast } = useToast();
 
   const [showModal, setShowModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false); // <-- nowa zmienna
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
-    setIsDeleting(true); // Zablokuj podczas kasowania
+    setIsDeleting(true); // Block while deleting
 
     try {
       const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
@@ -28,15 +28,15 @@ export default function DeleteButton({
 
       if (res.ok) {
         showToast("Client deleted successfully.", "success");
-        setShowModal(false); // Zamknij modal
-        router.push("/clients"); // Przenieś do listy
+        setShowModal(false); // Close modal
+        router.push("/clients"); // Transfer to list
       } else {
         showToast(data.error || "Failed to delete client.", "error");
       }
     } catch (error) {
       showToast("Something went wrong.", "error");
     } finally {
-      setIsDeleting(false); // Odblokuj po operacji
+      setIsDeleting(false); // Unlock after operation
     }
   };
 
@@ -54,7 +54,7 @@ export default function DeleteButton({
           message={`Are you sure you want to delete ${name}?`}
           onConfirm={handleDelete}
           onCancel={() => setShowModal(false)}
-          isDeleting={isDeleting} // <-- podajemy stan
+          isDeleting={isDeleting} // <-- state is given
         />
       )}
     </>

@@ -1,34 +1,44 @@
+// src/components/ClientForm.tsx
+
 "use client";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/context/ToastContext";
 
+type Industry = {
+  id: number;
+  name: string;
+};
+
 type Client = {
   id?: number;
   name: string;
   address?: string | null;
-  industry?: string | null;
+  industry?: { name: string } | null;
 };
 
 type Props = {
   client?: Client;
   isEdit?: boolean;
   onSuccess?: () => void;
+  availableIndustries?: Industry[];
 };
 
 export default function ClientForm({
   client,
   isEdit = false,
   onSuccess,
+  availableIndustries = [],
 }: Props) {
   const [name, setName] = useState(client?.name || "");
   const [address, setAddress] = useState(client?.address || "");
-  const [industry, setIndustry] = useState(client?.industry || "");
+  const [industryName, setIndustryName] = useState(
+    client?.industry?.name || ""
+  );
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const router = useRouter();
-
   const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,7 +52,7 @@ export default function ClientForm({
     const formData = new FormData();
     formData.append("name", name);
     formData.append("address", address);
-    formData.append("industry", industry);
+    formData.append("industry", industryName); // New or existing
     if (logoFile) formData.append("logo", logoFile);
 
     const endpoint =
@@ -85,18 +95,28 @@ export default function ClientForm({
         className="w-full border p-2"
       />
       <input
+        list="industry-options"
+        autoComplete="off"
         type="text"
-        placeholder="Industry"
-        value={industry}
-        onChange={(e) => setIndustry(e.target.value)}
+        placeholder="Industry (new or existing)"
+        value={industryName}
+        onChange={(e) => setIndustryName(e.target.value)}
         className="w-full border p-2"
+        required
       />
+      <datalist id="industry-options">
+        {availableIndustries.map((ind) => (
+          <option key={ind.id} value={ind.name} />
+        ))}
+      </datalist>
+
       <input
         type="file"
         accept=".svg,.png,.jpg,.jpeg"
         onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
         className="w-full"
       />
+
       <div className="flex items-center gap-4 mt-4">
         <button
           type="submit"

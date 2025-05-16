@@ -8,11 +8,12 @@ import path from "path";
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const name = searchParams.get("name")?.toLowerCase() || "";
-  const industry = searchParams.get("industry")?.toLowerCase() || "";
+  // const industry = searchParams.get("industry")?.toLowerCase() || "";
+  const industry = searchParams.get("industry") || "";
 
   const skip = parseInt(searchParams.get("skip") || "0");
-  const limit = parseInt(searchParams.get("limit") || "20");
-
+  //const limit = parseInt(searchParams.get("limit") || "20");
+  const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
   const clients = await prisma.client.findMany({
     where: {
       AND: [
@@ -27,28 +28,62 @@ export async function GET(req: Request) {
         industry
           ? {
               industry: {
-                contains: industry,
-                mode: "insensitive",
+                name: {
+                  equals: industry,
+                  mode: "insensitive",
+                },
               },
             }
           : {},
       ],
+    },
+    include: {
+      industry: true,
     },
     orderBy: { name: "asc" },
     skip,
     take: limit,
   });
 
-  return NextResponse.json(clients);
+  //return NextResponse.json(clients);
+  return NextResponse.json(
+    clients.map((c) => ({
+      ...c,
+      industry: c.industry?.name || null,
+    }))
+  );
 }
 
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    const name = formData.get("name") as string;
+    //const name = formData.get("name") as string;
+    const name = formData.get("name")?.toString().trim();
+
     const address = formData.get("address") as string;
-    const industry = formData.get("industry") as string;
+
+    //const industry = formData.get("industry") as string;
+    //const industry = (formData.get("industry") as string)?.trim();
+
+    const industryName = (formData.get("industry") as string)?.trim();
+
+    if (!industryName) {
+      return NextResponse.json(
+        { error: "Industry is required." },
+        { status: 400 }
+      );
+    }
+
+    let industry = await prisma.industry.findFirst({
+      where: { name: { equals: industryName, mode: "insensitive" } },
+    });
+
+    if (!industry) {
+      industry = await prisma.industry.create({
+        data: { name: industryName },
+      });
+    }
     const file = formData.get("logo") as File | null;
 
     if (!name || name.trim().length < 2) {
@@ -60,6 +95,13 @@ export async function POST(req: Request) {
 
     let buffer: Buffer;
     let type: string;
+
+    if (file && !file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Only image files are allowed." },
+        { status: 400 }
+      );
+    }
 
     if (file && file.size > 0) {
       const arrayBuffer = await file.arrayBuffer();
@@ -76,9 +118,10 @@ export async function POST(req: Request) {
       data: {
         name,
         address,
-        industry,
+        //industry,
         logoBlob: buffer,
         logoType: type,
+        industry: { connect: { id: industry.id } },
       },
     });
 

@@ -8,22 +8,27 @@
 
 generator client {
   provider = "prisma-client-js"
-  
 }
+
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+model Industry {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  clients Client[]
+}
+
 model Client {
-  id        Int      @id @default(autoincrement())
-  name      String
-  address   String?
-  industry  String?
-  logoBlob  Bytes?        // ← tutaj będzie przechowywany plik logo
-  logoType  String?       // ← MIME type (np. image/png)
-                          //     - image/svg+xml
-                          //     - image/jpeg
-  createdAt DateTime @default(now())
+  id         Int       @id @default(autoincrement())
+  name       String
+  address    String?
+  logoBlob   Bytes?
+  logoType   String?
+  createdAt  DateTime  @default(now())
+  industry   Industry? @relation(fields: [industryId], references: [id])
+  industryId Int?
 }

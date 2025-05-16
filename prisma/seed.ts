@@ -7,10 +7,21 @@ import path from "path";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Load a file from public/
   const logoPath = path.join(process.cwd(), "public/Tux_Default.png");
   const logoBuffer = await fs.readFile(logoPath);
   const logoType = "image/png";
+
+  const industryNames = [
+    "Crypto",
+    "IT",
+    "Design",
+    "Media",
+    "Retail",
+    "Finance",
+  ];
+  const industries = await Promise.all(
+    industryNames.map((name) => prisma.industry.create({ data: { name } }))
+  );
 
   const addresses = [
     "StreetStreet",
@@ -20,7 +31,6 @@ async function main() {
     "Retailstreet",
     "Financestreet",
   ];
-  const industries = ["Crypto", "IT", "Design", "Media", "Retail", "Finance"];
   const names = [
     "Acme Corp",
     "Bitzone",
@@ -34,7 +44,7 @@ async function main() {
     "OceanSoft",
   ];
 
-  const total = 100; // 100 test clients
+  const total = 100;
 
   for (let i = 0; i < total; i++) {
     const name = `${names[i % names.length]} ${i + 1}`;
@@ -45,9 +55,9 @@ async function main() {
       data: {
         name,
         address,
-        industry,
+        industry: { connect: { id: industry.id } },
         logoBlob: logoBuffer,
-        logoType: logoType,
+        logoType,
       },
     });
   }
