@@ -12,9 +12,20 @@ export default async function EditClientPage(props: {
   });
   const { id } = await props.params;
 
+  /* const client = await prisma.client.findUnique({
+    where: { id: Number(id) },
+    include: { industry: true, logoBlob: true, logoType: true }, // take industry
+  }); */
   const client = await prisma.client.findUnique({
     where: { id: Number(id) },
-    include: { industry: true }, // take industry
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      logoBlob: true,
+      logoType: true,
+      industry: { select: { name: true } },
+    },
   });
 
   if (!client) {
@@ -23,7 +34,9 @@ export default async function EditClientPage(props: {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit client</h1>
+      <h1 className="text-3xl font-bold text-center mb-8 text-white">
+        Edit client
+      </h1>
       <ClientForm client={client} isEdit availableIndustries={industries} />
     </div>
   );
