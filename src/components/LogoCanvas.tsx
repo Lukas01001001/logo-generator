@@ -48,6 +48,9 @@ export default function LogoCanvas({ clients }: Props) {
     Record<number, "black" | "white">
   >({});
 
+  // Needed to make logo checkboxes on canvas work !!!
+  const [dragDisabledId, setDragDisabledId] = useState<number | null>(null);
+
   // INPUT FIELD state height and width
   const [inputCanvasWidth, setInputCanvasWidth] = useState("0");
   const [inputCanvasHeight, setInputCanvasHeight] = useState("600");
@@ -232,39 +235,37 @@ export default function LogoCanvas({ clients }: Props) {
           </p>
         )}
 
-        <div className="flex gap-4">
-          {/* Switch Selected Logos Background Color button */}
-          <button
-            onClick={() => {
-              setLogoBackgrounds((prev) => {
-                const updated = { ...prev };
-                selectedIds.forEach((id) => {
-                  updated[id] = prev[id] === "black" ? "white" : "black";
-                });
-                return updated;
+        {/* Switch Selected Logos Background Color button */}
+        <button
+          onClick={() => {
+            setLogoBackgrounds((prev) => {
+              const updated = { ...prev };
+              selectedIds.forEach((id) => {
+                updated[id] = prev[id] === "black" ? "white" : "black";
               });
-            }}
-            className="bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded shadow"
-          >
-            Toggle Selected Logo Backgrounds
-          </button>
+              return updated;
+            });
+          }}
+          className="w-full sm:w-auto bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded shadow"
+        >
+          Toggle Logo BGs
+        </button>
 
-          {/* Switch Color button */}
-          <button
-            onClick={toggleCanvasBackground}
-            className="bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded shadow"
-          >
-            {canvasBg === "black" ? "White Background" : "Black Background"}
-          </button>
+        {/* Switch Color button */}
+        <button
+          onClick={toggleCanvasBackground}
+          className="w-full sm:w-auto bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded shadow"
+        >
+          {canvasBg === "black" ? "White Background" : "Black Background"}
+        </button>
 
-          {/* Reset button */}
-          <button
-            onClick={resetLayout}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
-          >
-            Reset Layout
-          </button>
-        </div>
+        {/* Reset button */}
+        <button
+          onClick={resetLayout}
+          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+        >
+          Reset Layout
+        </button>
       </div>
 
       {/* Canvas area */}
@@ -303,11 +304,13 @@ export default function LogoCanvas({ clients }: Props) {
                     ...position,
                   })
                 }
+                disableDragging={dragDisabledId === client.id} // Needed to make logo checkboxes on canvas work !!!
                 className="absolute"
               >
                 {base64 ? (
                   <>
                     <input
+                      // Prevent drag interference when tapping checkbox on mobile
                       type="checkbox"
                       checked={selectedIds.includes(client.id)}
                       onChange={() => {
@@ -317,7 +320,11 @@ export default function LogoCanvas({ clients }: Props) {
                             : [...prev, client.id]
                         );
                       }}
-                      className="absolute top-1 left-1 w-5 h-5 z-10"
+                      className="absolute top-1 left-1 w-5 h-5 z-10 cursor-pointer"
+                      onPointerDown={() => setDragDisabledId(client.id)} // temporarily disable dragging
+                      onPointerUp={() =>
+                        setTimeout(() => setDragDisabledId(null), 100)
+                      }
                     />
                     <img
                       src={base64}
