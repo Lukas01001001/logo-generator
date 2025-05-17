@@ -29,6 +29,8 @@ Logo Generator ist eine Webanwendung zur Erstellung, Filterung und Verwaltung vo
 - **html-to-image** (Bildgenerierung)
 - **lodash.debounce** (Suchoptimierung)
 - **react-rnd** (Größe und Position von Logos anpassen)
+- **lucide-react** (Symbolbibliothek)
+- **framer-motion** (Animationen)
 
 ## 💻 Systemanforderungen
 
@@ -43,30 +45,38 @@ Logo Generator ist eine Webanwendung zur Erstellung, Filterung und Verwaltung vo
 git clone https://github.com/dein-benutzername/logo-generator.git
 cd logo-generator
 npm install
+# oder stattdessen yarn / pnpm verwenden
 ```
 
-SKonfiguriere deine `.env`-Datei:
+Konfigurieren Sie Ihre `.env` Datei:  
+Bevor Sie das Projekt starten, kopieren Sie die Datei `.env.example` in die Datei `.env` und geben Sie Ihre Datenbank-Anmeldedaten ein.
 
-```
-DATABASE_URL=postgresql://...
+```bash
+cp .env.example .env
 ```
 
-Datenbank erstellen und Migration starten:
+Bearbeiten Sie dann die Datei `.env` und setzen Sie Ihre Datenbank-URL:
+
+```env
+DATABASE_URL=postgresql://dein_benutzer:ihr_passwort@localhost:5432/logo_generator
+```
+
+Erstellen Sie die Datenbank und führen Sie die erste Migration durch:
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-Entwicklungsserver starten
+Starten Sie den Entwicklungsserver:
 
 ```bash
 npm run dev
 ```
 
-Öffne [http://localhost:3000](http://localhost:3000) im Browser, um das Ergebnis zu sehen.
+Öffnen Sie [http://localhost:3000](http://localhost:3000) in Ihrem Browser, um das Ergebnis zu sehen.
 
 ```
-## Mehr erfahren
+## 📚 Mehr erfahren
 
 Weitere Informationen zu Next.js findest du hier:
 
@@ -100,16 +110,26 @@ Siehe auch das [ Next.js GitHub](https://github.com/vercel/next.js) - Feedback u
 ## 🗃️ Datenbank und Prisma
 
 ```prisma
+model Industry {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  clients Client[]
+}
+
 model Client {
-  id        Int     @id @default(autoincrement())
-  name      String
-  address   String?
-  industry  String?
-  logoBlob  Bytes?
-  logoType  String?
-  createdAt DateTime @default(now())
+  id         Int      @id @default(autoincrement())
+  name       String
+  address    String?
+  logoBlob   Bytes?
+  logoType   String?
+  createdAt  DateTime @default(now())
+  industry   Industry? @relation(fields: [industryId], references: [id])
+  industryId Int?
 }
 ```
+
+**Der Kunde gehört zu einer Branche, aber die Branche ist optional (nullbarer Fremdschlüssel).
+Verwaiste Branchen werden gelöscht, wenn ihr letzter Kunde entfernt wird.**
 
 ## 🌱 Daten seeden
 
@@ -139,9 +159,20 @@ Im Frontend wird das Logo in `data:image/png;base64,...` dekodiert.
 - Komponenten für Tailwind-Skalierung optimiert
 - Debounced Inputs sorgen für flüssiges UX ohne Neuladen
 
+## 📦 Installierte Pakete
+
+Liste der wichtigsten Abhängigkeiten:
+
+- `next`, `react`, `typescript`
+- `prisma`, `@prisma/client`, `ts-node`
+- `tailwindcss`, `postcss`
+- `html-to-image`, `react-rnd`, `lodash.debounce`
+- `lucide-react`, `framer-motion`
+
+(Siehe `package.json` für alle Details)
+
 ## 🧩 TODO / Roadmap
 
-- [ ] Client bearbeiten
 - [ ] Import aus CSV / Excel
 - [ ] Export der Logos als ZIP
 - [ ] Integration von Cloud-Storage (z. B. Supabase)

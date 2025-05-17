@@ -29,6 +29,8 @@ Logo Generator to aplikacja webowa umożliwiająca tworzenie, filtrowanie i zarz
 - **html-to-image** (generacja grafik)
 - **lodash.debounce** (optymalizacja wyszukiwania)
 - **react-rnd** (manipulacja pozycją i rozmiarem logo)
+- **lucide-react** (biblioteka ikon)
+- **framer-motion** (animacje)
 
 ## 💻 Wymagania systemowe
 
@@ -40,24 +42,32 @@ Logo Generator to aplikacja webowa umożliwiająca tworzenie, filtrowanie i zarz
 ## 🚀 Instalacja i uruchomienie
 
 ```bash
-git clone https://github.com/nazwa-uzytkownika/logo-generator.git
+git clone https://github.com/your-username/logo-generator.git
 cd logo-generator
 npm install
+# ub zamiast tego użyj yarn / pnpm
 ```
 
-Skonfiguruj `.env`:
+Skonfiguruj plik `.env`:  
+Przed uruchomieniem projektu skopiuj plik `.env.example` do `.env` i wprowadź dane uwierzytelniające bazy danych.
 
-```
-DATABASE_URL=postgresql://...
+```bash
+cp .env.example .env
 ```
 
-Utwórz bazę danych i uruchom migrację:
+Następnie edytuj plik `.env` i ustaw adres URL bazy danych:
+
+```env
+DATABASE_URL=postgresql://your_user:your_password@localhost:5432/logo_generator
+```
+
+Utwórz bazę danych i uruchom początkową migrację:
 
 ```bash
 npx prisma migrate dev --name init
 ```
 
-Uruchom projekt:
+Uruchom serwer deweloperski:
 
 ```bash
 npm run dev
@@ -65,8 +75,7 @@ npm run dev
 
 Otwórz [http://localhost:3000](http://localhost:3000) w przeglądarce, aby zobaczyć wynik.
 
-```
-## Dowiedz się więcej
+## 📚 Dowiedz się więcej
 
 Aby dowiedzieć się więcej o Next.js, zapoznaj się z następującymi zasobami:
 
@@ -74,42 +83,57 @@ Aby dowiedzieć się więcej o Next.js, zapoznaj się z następującymi zasobami
 - [Learn Next.js](https://nextjs.org/learn) - interaktywny samouczek Next.js.
 
 Możesz sprawdzić [repozytorium Next.js GitHub](https://github.com/vercel/next.js) - Twoja opinia i wkład są mile widziane!
+
 ```
 
 ## 📁 Struktura projektu
 
 ```
+
 .
 ├── prisma/
-│   ├── schema.prisma
-│   └── seed.ts
+│ ├── schema.prisma
+│ └── seed.ts
 ├── src/
-│   ├── app/
-│   ├── components/
-│   │   ├── ClientCard.tsx
-│   │   ├── ClientList.tsx
-│   │   └── ui/
-│   └── lib/
-│       └── db.ts
+│ ├── app/
+│ ├── components/
+│ │ ├── ClientCard.tsx
+│ │ ├── ClientList.tsx
+│ │ └── ui/
+│ └── lib/
+│ └── db.ts
 ├── public/
-│   └── Tux_Default.png
+│ └── Tux_Default.png
 ├── .env
 └── package.json
-```
+
+````
 
 ## 🗃️ Baza danych i Prisma
 
 ```prisma
-model Client {
-  id        Int     @id @default(autoincrement())
-  name      String
-  address   String?
-  industry  String?
-  logoBlob  Bytes?
-  logoType  String?
-  createdAt DateTime @default(now())
+
+model Industry {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  clients Client[]
 }
-```
+
+model Client {
+  id         Int      @id @default(autoincrement())
+  name       String
+  address    String?
+  logoBlob   Bytes?
+  logoType   String?
+  createdAt  DateTime @default(now())
+  industry   Industry? @relation(fields: [industryId], references: [id])
+  industryId Int?
+}
+
+````
+
+\*\*Klient należy do jednej branży, ale branża jest opcjonalna (klucz obcy o wartości null).
+Osierocone branże są usuwane, gdy ich ostatni klient zostanie usunięty.
 
 ## 🌱 Seedowanie danych
 
@@ -137,9 +161,20 @@ Logo przechowywane jest jako `logoBlob` (`Bytes`) i `logoType`. W przypadku brak
 - Komponenty zoptymalizowane pod Tailwind i skalowanie
 - Płynne UX dzięki debounced input i bez przeładowań
 
+## 📦 Zainstalowane pakiety
+
+Lista kluczowych zależności:
+
+- `next`, `react`, `typescript`
+- `prisma`, `@prisma/client`, `ts-node`
+- `tailwindcss`, `postcss`
+- `html-to-image`, `react-rnd`, `lodash.debounce`
+- `lucide-react`, `framer-motion`
+
+(Zobacz `package.json` dla pełnych szczegółów)
+
 ## 🧩 TODO / Roadmap
 
-- [ ] Edycja klienta
 - [ ] Import CSV / Excel
 - [ ] Eksport logo jako ZIP
 - [ ] Integracja z chmurą (np. Supabase storage)
