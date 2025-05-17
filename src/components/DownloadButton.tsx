@@ -12,6 +12,7 @@ export default function DownloadButton() {
     const node = document.getElementById("logo-canvas");
     if (!node) return;
 
+    // Temporarily hide checkboxes and borders for clean PNG export
     // add CSS class export-mode
     document.body.classList.add("export-mode");
 
@@ -37,7 +38,7 @@ export default function DownloadButton() {
       // Safely remove the class when the export is ready.
       setTimeout(() => {
         document.body.classList.remove("export-mode");
-      }, 300);
+      }, 1000);
     }
   };
 

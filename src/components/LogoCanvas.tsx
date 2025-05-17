@@ -39,6 +39,15 @@ export default function LogoCanvas({ clients }: Props) {
   const [canvasWidth, setCanvasWidth] = useState(0);
   const [canvasHeight, setCanvasHeight] = useState(600);
 
+  // Canvas Background color
+  const [canvasBg, setCanvasBg] = useState<"black" | "white">("black");
+
+  // Selected logo background color
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [logoBackgrounds, setLogoBackgrounds] = useState<
+    Record<number, "black" | "white">
+  >({});
+
   // INPUT FIELD state height and width
   const [inputCanvasWidth, setInputCanvasWidth] = useState("0");
   const [inputCanvasHeight, setInputCanvasHeight] = useState("600");
@@ -69,6 +78,14 @@ export default function LogoCanvas({ clients }: Props) {
       };
     });
     setLayout(defaultLayout);
+
+    // selected logos background color
+    const bgDefaults: Record<number, "black" | "white"> = {};
+    clients.forEach((client) => {
+      bgDefaults[client.id] = "black";
+    });
+    setLogoBackgrounds(bgDefaults);
+    //
   }, [clients]);
 
   const resetLayout = () => {
@@ -82,6 +99,11 @@ export default function LogoCanvas({ clients }: Props) {
       };
     });
     setLayout(reset);
+  };
+
+  // Canvas Color Switch
+  const toggleCanvasBackground = () => {
+    setCanvasBg((prev) => (prev === "black" ? "white" : "black"));
   };
 
   const updateClientLayout = (
@@ -210,18 +232,46 @@ export default function LogoCanvas({ clients }: Props) {
           </p>
         )}
 
-        {/* Reset button */}
-        <button
-          onClick={resetLayout}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
-        >
-          Reset Layout
-        </button>
+        <div className="flex gap-4">
+          {/* Switch Selected Logos Background Color button */}
+          <button
+            onClick={() => {
+              setLogoBackgrounds((prev) => {
+                const updated = { ...prev };
+                selectedIds.forEach((id) => {
+                  updated[id] = prev[id] === "black" ? "white" : "black";
+                });
+                return updated;
+              });
+            }}
+            className="bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded shadow"
+          >
+            Toggle Selected Logo Backgrounds
+          </button>
+
+          {/* Switch Color button */}
+          <button
+            onClick={toggleCanvasBackground}
+            className="bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded shadow"
+          >
+            {canvasBg === "black" ? "White Background" : "Black Background"}
+          </button>
+
+          {/* Reset button */}
+          <button
+            onClick={resetLayout}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+          >
+            Reset Layout
+          </button>
+        </div>
       </div>
 
       {/* Canvas area */}
       <div
-        className="relative border border-yellow-600 bg-black rounded overflow-x-auto"
+        className={`relative border border-yellow-600 rounded overflow-x-auto ${
+          canvasBg === "black" ? "bg-black" : "bg-white"
+        }`}
         style={{ width: canvasWidth, height: canvasHeight }}
         id="logo-canvas"
       >
@@ -256,11 +306,29 @@ export default function LogoCanvas({ clients }: Props) {
                 className="absolute"
               >
                 {base64 ? (
-                  <img
-                    src={base64}
-                    alt={client.name}
-                    className="w-full h-full object-contain border-2 border-white rounded bg-black with-border"
-                  />
+                  <>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(client.id)}
+                      onChange={() => {
+                        setSelectedIds((prev) =>
+                          prev.includes(client.id)
+                            ? prev.filter((id) => id !== client.id)
+                            : [...prev, client.id]
+                        );
+                      }}
+                      className="absolute top-1 left-1 w-5 h-5 z-10"
+                    />
+                    <img
+                      src={base64}
+                      alt={client.name}
+                      className={`w-full h-full object-contain border-2 border-white rounded ${
+                        logoBackgrounds[client.id] === "white"
+                          ? "bg-white"
+                          : "bg-black"
+                      }`}
+                    />
+                  </>
                 ) : (
                   <div className="w-full h-full bg-gray-300 flex items-center justify-center text-sm text-gray-700">
                     No Logo
