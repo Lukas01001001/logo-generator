@@ -7,14 +7,19 @@ import LogoCanvas from "@/components/LogoCanvas";
 import DownloadButton from "@/components/DownloadButton";
 import Link from "next/link";
 
+// type Props = {
+//   searchParams: { ids?: string; name?: string; industry?: string };
+// };
 type Props = {
   searchParams: Promise<{ ids?: string; name?: string; industry?: string }>;
 };
 
+// export default async function GeneratePage({ searchParams }: Props) {
+//   const { ids, name, industry } = searchParams;
 export default async function GeneratePage({ searchParams }: Props) {
   const { ids, name, industry } = await searchParams;
 
-  if (!ids) return notFound();
+  if (!ids || !ids.match(/^\d+(,\d+)*$/)) return notFound();
 
   const params = new URLSearchParams();
   params.set("ids", ids);
@@ -22,9 +27,16 @@ export default async function GeneratePage({ searchParams }: Props) {
   if (industry) params.set("industry", industry);
 
   const idList = ids.split(",").map((id) => parseInt(id.trim()));
-  const clients = await prisma.client.findMany({
+  const rawClients = await prisma.client.findMany({
     where: { id: { in: idList } },
   });
+
+  const clients = rawClients.map((client) => ({
+    ...client,
+    logoBlob: client.logoBlob
+      ? Buffer.from(client.logoBlob).toString("base64")
+      : null,
+  }));
 
   if (!clients.length) return notFound();
 

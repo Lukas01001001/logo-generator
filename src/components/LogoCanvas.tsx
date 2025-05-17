@@ -8,7 +8,7 @@ import { Rnd } from "react-rnd";
 type Client = {
   id: number;
   name: string;
-  logoBlob: Uint8Array | null;
+  logoBlob: string | null;
   logoType: string | null;
 };
 
@@ -22,18 +22,6 @@ type PositionAndSize = {
   width: number;
   height: number;
 };
-
-function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
-  const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
-  const bytes = new Uint8Array(byteArray);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return typeof window === "undefined"
-    ? Buffer.from(binary, "binary").toString("base64")
-    : window.btoa(binary);
-}
 
 export default function LogoCanvas({ clients }: Props) {
   const [canvasWidth, setCanvasWidth] = useState(0);
@@ -279,9 +267,7 @@ export default function LogoCanvas({ clients }: Props) {
         {clients.map((client) => {
           const base64 =
             client.logoBlob && client.logoType
-              ? `data:${client.logoType};base64,${bufferToBase64(
-                  client.logoBlob
-                )}`
+              ? `data:${client.logoType};base64,${client.logoBlob}`
               : null;
 
           const pos = layout[client.id];
