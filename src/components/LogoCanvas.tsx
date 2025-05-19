@@ -109,10 +109,11 @@ export default function LogoCanvas({ clients }: Props) {
 
   return (
     <div className="mb-8">
-      {/* Sliders */}
-      <div className="flex flex-col sm:flex-row gap-6 mb-4 text-white">
-        <div className="flex items-center gap-2 flex-1">
-          <label>Canvas Height:</label>
+      {/* Sliders + Buttons in responsive layout */}
+      <div className="flex flex-col lg:flex-row lg:flex-wrap gap-4 mb-4 text-white items-start lg:items-center">
+        {/* Canvas Height input */}
+        <div className="flex items-center gap-2 flex-1 w-full">
+          <label className="whitespace-nowrap">Canvas Height:</label>
           <input
             type="range"
             min={240}
@@ -131,42 +132,34 @@ export default function LogoCanvas({ clients }: Props) {
             max={2500}
             value={inputCanvasHeight}
             onChange={(e) => {
-              // Remove leading zeros
               const raw = e.target.value.replace(/^0+(?=\d)/, "");
-
-              setInputCanvasHeight(raw); //Allow the user to enter even an empty string
+              setInputCanvasHeight(raw);
             }}
             onFocus={() => setIsHeightFocused(true)}
             onBlur={() => {
               setIsHeightFocused(false);
               const value = parseInt(inputCanvasHeight);
               if (isNaN(value)) {
-                // If empty or incorrect, return to last correct one
                 setInputCanvasHeight(canvasHeight.toString());
                 return;
               }
-
-              //Clamp to range
               const clamped = Math.max(240, Math.min(2500, value));
               setCanvasHeight(clamped);
               setInputCanvasHeight(clamped.toString());
             }}
             className="w-20 px-2 py-1 rounded text-white border border-amber-50"
           />
-
           <span>px</span>
+          {/* {isHeightFocused && (
+            <p className="text-sm text-gray-400 italic ml-2 whitespace-nowrap">
+              ⚠️ Value will be applied after leaving the field
+            </p>
+          )} */}
         </div>
-        {isHeightFocused && (
-          <p
-            className="text-sm text-gray-400 mt-2 ml-1 italic"
-            aria-live="polite"
-          >
-            ⚠️ Value will be applied after leaving the field
-          </p>
-        )}
 
-        <div className="flex items-center gap-2 flex-1">
-          <label>Canvas Width:</label>
+        {/* Canvas Width input */}
+        <div className="flex items-center gap-2 flex-1 w-full">
+          <label className="whitespace-nowrap">Canvas Width:</label>
           <input
             type="range"
             min={240}
@@ -186,74 +179,61 @@ export default function LogoCanvas({ clients }: Props) {
             value={inputCanvasWidth}
             onChange={(e) => {
               const raw = e.target.value.replace(/^0+(?=\d)/, "");
-              setInputCanvasWidth(raw); // Allow the user to enter even an empty string
+              setInputCanvasWidth(raw);
             }}
             onFocus={() => setIsWidthFocused(true)}
             onBlur={() => {
               setIsWidthFocused(false);
               const value = parseInt(inputCanvasWidth);
               if (isNaN(value)) {
-                // If empty or incorrect, return to last correct one
                 setInputCanvasWidth(canvasWidth.toString());
                 return;
               }
-
-              // Clamp to range
               const clamped = Math.max(240, Math.min(2500, value));
               setCanvasWidth(clamped);
               setInputCanvasWidth(clamped.toString());
             }}
             className="w-20 px-2 py-1 rounded text-white border border-amber-50"
           />
-
           <span>px</span>
-          {/* <span
-            title="Value will be applied after leaving the field"
-            className="text-gray-400 cursor-help ml-1"
-          >
-            ⓘ
-          </span> */}
+          {/* {isWidthFocused && (
+            <p className="text-sm text-gray-400 italic ml-2 whitespace-nowrap">
+              ⚠️ Value will be applied after leaving the field
+            </p>
+          )} */}
         </div>
-        {isWidthFocused && (
-          <p
-            className="text-sm text-gray-400 mt-2 ml-1 italic"
-            aria-live="polite"
-          >
-            ⚠️ Value will be applied after leaving the field
-          </p>
-        )}
 
-        {/* Switch Selected Logos Background Color button */}
-        <button
-          onClick={() => {
-            setLogoBackgrounds((prev) => {
-              const updated = { ...prev };
-              selectedIds.forEach((id) => {
-                updated[id] = prev[id] === "black" ? "white" : "black";
+        {/* Buttons Group */}
+        <div className="flex flex-col md:flex-row lg:flex-row lg:items-center gap-4 w-full lg:w-auto">
+          <button
+            onClick={() => {
+              setLogoBackgrounds((prev) => {
+                const updated = { ...prev };
+                selectedIds.forEach((id) => {
+                  updated[id] = prev[id] === "black" ? "white" : "black";
+                });
+                return updated;
               });
-              return updated;
-            });
-          }}
-          className="w-full sm:w-auto bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded shadow"
-        >
-          Toggle Logo BGs
-        </button>
+            }}
+            className="w-full lg:w-auto bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded shadow"
+          >
+            Toggle Logo BGs
+          </button>
 
-        {/* Switch Color button */}
-        <button
-          onClick={toggleCanvasBackground}
-          className="w-full sm:w-auto bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded shadow"
-        >
-          {canvasBg === "black" ? "White Background" : "Black Background"}
-        </button>
+          <button
+            onClick={toggleCanvasBackground}
+            className="w-full lg:w-auto bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded shadow"
+          >
+            {canvasBg === "black" ? "White Background" : "Black Background"}
+          </button>
 
-        {/* Reset button */}
-        <button
-          onClick={resetLayout}
-          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
-        >
-          Reset Layout
-        </button>
+          <button
+            onClick={resetLayout}
+            className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+          >
+            Reset Layout
+          </button>
+        </div>
       </div>
 
       {/* Canvas area */}
@@ -290,13 +270,12 @@ export default function LogoCanvas({ clients }: Props) {
                     ...position,
                   })
                 }
-                disableDragging={dragDisabledId === client.id} // Needed to make logo checkboxes on canvas work !!!
+                disableDragging={dragDisabledId === client.id}
                 className="absolute"
               >
                 {base64 ? (
                   <>
                     <input
-                      // Prevent drag interference when tapping checkbox on mobile
                       type="checkbox"
                       checked={selectedIds.includes(client.id)}
                       onChange={() => {
@@ -307,7 +286,7 @@ export default function LogoCanvas({ clients }: Props) {
                         );
                       }}
                       className="absolute top-1 left-1 w-5 h-5 z-10 cursor-pointer"
-                      onPointerDown={() => setDragDisabledId(client.id)} // temporarily disable dragging
+                      onPointerDown={() => setDragDisabledId(client.id)}
                       onPointerUp={() =>
                         setTimeout(() => setDragDisabledId(null), 100)
                       }

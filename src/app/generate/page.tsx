@@ -7,15 +7,18 @@ import LogoCanvas from "@/components/LogoCanvas";
 import DownloadButton from "@/components/DownloadButton";
 import Link from "next/link";
 
+//******* There may be a need to give up 'Promise' when the project is hosted on a server.  ********/
 // type Props = {
 //   searchParams: { ids?: string; name?: string; industry?: string };
 // };
+//******** ******** ******** ********* ******** ******** *********/
 type Props = {
   searchParams: Promise<{ ids?: string; name?: string; industry?: string }>;
 };
-
+//******* There may be a need to give up 'Promise' when the project is hosted on a server.  ********/
 // export default async function GeneratePage({ searchParams }: Props) {
 //   const { ids, name, industry } = searchParams;
+//******** ******** ******** ********* ******** ******** *********/
 export default async function GeneratePage({ searchParams }: Props) {
   const { ids, name, industry } = await searchParams;
 
