@@ -44,6 +44,11 @@ body.export-mode #logo-canvas input[type="checkbox"] {
 body.export-mode #logo-canvas img {
   border: none !important;
 }
+
+/* Hide the toggle button during PNG export */
+body.export-mode #logo-canvas .canvas-toggle-btn {
+  display: none !important;
+}
 /****************** ******** ********************/
 
 @keyframes fade-in {

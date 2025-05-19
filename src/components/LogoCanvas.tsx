@@ -244,6 +244,18 @@ export default function LogoCanvas({ clients }: Props) {
         style={{ width: canvasWidth, height: canvasHeight }}
         id="logo-canvas"
       >
+        {/* Toggle all checkbox button - hidden during export */}
+        <button
+          onClick={() => {
+            const allSelected = selectedIds.length === clients.length;
+            setSelectedIds(allSelected ? [] : clients.map((c) => c.id));
+          }}
+          /* className="absolute top-2 right-2 z-20 bg-white bg-opacity-60 hover:bg-opacity-80 text-black font-semibold px-3 py-1 text-sm rounded shadow transition" */
+          className="canvas-toggle-btn absolute top-4 right-4 border border-yellow-600 bg-white/60 text-black font-semibold text-sm px-3 py-1 rounded shadow z-50"
+        >
+          {selectedIds.length === clients.length ? "Uncheck All" : "Check All"}
+        </button>
+
         {clients.map((client) => {
           const base64 =
             client.logoBlob && client.logoType
