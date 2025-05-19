@@ -80,7 +80,11 @@ export default function LogoCanvas({ clients }: Props) {
   }, [clients]);
 
   const resetLayout = () => {
+    // Reset layout
     const reset: Record<number, PositionAndSize> = {};
+
+    const defaultBGs: Record<number, "black" | "white"> = {};
+
     clients.forEach((client, index) => {
       reset[client.id] = {
         x: 30 + index * 10,
@@ -88,8 +92,12 @@ export default function LogoCanvas({ clients }: Props) {
         width: 100,
         height: 100,
       };
+      defaultBGs[client.id] = "black"; // reset logo backgrounds
     });
     setLayout(reset);
+    setSelectedIds([]); // uncheck all
+    setLogoBackgrounds(defaultBGs); // reset all backgrounds to black
+    setCanvasBg("black"); // reset canvas background
   };
 
   // Canvas Color Switch
@@ -231,7 +239,7 @@ export default function LogoCanvas({ clients }: Props) {
             onClick={resetLayout}
             className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
           >
-            Reset Layout
+            Reset All
           </button>
         </div>
       </div>
@@ -250,7 +258,6 @@ export default function LogoCanvas({ clients }: Props) {
             const allSelected = selectedIds.length === clients.length;
             setSelectedIds(allSelected ? [] : clients.map((c) => c.id));
           }}
-          /* className="absolute top-2 right-2 z-20 bg-white bg-opacity-60 hover:bg-opacity-80 text-black font-semibold px-3 py-1 text-sm rounded shadow transition" */
           className="canvas-toggle-btn absolute top-4 right-4 border border-yellow-600 bg-white/60 text-black font-semibold text-sm px-3 py-1 rounded shadow z-50"
         >
           {selectedIds.length === clients.length ? "Uncheck All" : "Check All"}
