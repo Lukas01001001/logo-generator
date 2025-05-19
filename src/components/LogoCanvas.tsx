@@ -237,7 +237,7 @@ export default function LogoCanvas({ clients }: Props) {
 
           <button
             onClick={resetLayout}
-            className="w-full lg:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded shadow"
+            className="w-full lg:w-auto  bg-yellow-500 hover:bg-yellow-600  text-black font-semibold px-4 py-2 rounded shadow"
           >
             Reset All
           </button>
