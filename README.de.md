@@ -31,6 +31,7 @@ Logo Generator ist eine Webanwendung zur Erstellung, Filterung und Verwaltung vo
 - **react-rnd** (Größe und Position von Logos anpassen)
 - **lucide-react** (Symbolbibliothek)
 - **framer-motion** (Animationen)
+- **zustand** (globaler Status für die Auswahl der Checkbox)
 
 ## 💻 Systemanforderungen
 
@@ -168,6 +169,7 @@ Liste der wichtigsten Abhängigkeiten:
 - `tailwindcss`, `postcss`
 - `html-to-image`, `react-rnd`, `lodash.debounce`
 - `lucide-react`, `framer-motion`
+- `Zustand` - leichtgewichtiger globaler Zustand (wird verwendet, um die Auswahl des Kontrollkästchens beizubehalten)
 
 (Siehe `package.json` für alle Details)
 

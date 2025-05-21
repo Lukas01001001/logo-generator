@@ -57,7 +57,6 @@ export default function ClientFilters({ availableIndustries }: Props) {
       <select
         value={industry}
         onChange={(e) => setIndustry(e.target.value)}
-        s
         className="w-full md:w-1/4 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option value="">All industries</option>
