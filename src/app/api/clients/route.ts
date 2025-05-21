@@ -7,12 +7,13 @@ import path from "path";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
+
   const name = searchParams.get("name")?.toLowerCase() || "";
-  // const industry = searchParams.get("industry")?.toLowerCase() || "";
+
   const industry = searchParams.get("industry") || "";
 
   const skip = parseInt(searchParams.get("skip") || "0");
-  //const limit = parseInt(searchParams.get("limit") || "20");
+
   const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
   const clients = await prisma.client.findMany({
     where: {
@@ -45,6 +46,14 @@ export async function GET(req: Request) {
     take: limit,
   });
 
+  // DEBUG ↓↓↓
+  //console.log("🔍 Query name:", name);
+  //console.log("🔍 Query industry:", industry);
+  //console.log(
+  //  "📦 Found clients:",
+  //  clients.map((c) => c.name)
+  //);
+
   //return NextResponse.json(clients);
   return NextResponse.json(
     clients.map((c) => ({
@@ -58,13 +67,9 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    //const name = formData.get("name") as string;
     const name = formData.get("name")?.toString().trim();
 
     const address = formData.get("address") as string;
-
-    //const industry = formData.get("industry") as string;
-    //const industry = (formData.get("industry") as string)?.trim();
 
     const industryName = (formData.get("industry") as string)?.trim();
 
@@ -118,7 +123,6 @@ export async function POST(req: Request) {
       data: {
         name,
         address,
-        //industry,
         logoBlob: buffer,
         logoType: type,
         industry: { connect: { id: industry.id } },

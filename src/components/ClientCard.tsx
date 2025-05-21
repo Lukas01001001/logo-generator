@@ -17,7 +17,7 @@ type Props = {
   selectedIds: number[]; // <--
 };
 
-// function bufferToBase64(buffer: Uint8Array | Buffer | any): string {
+//
 function bufferToBase64(buffer: Uint8Array | Buffer): string {
   const byteArray = Array.isArray(buffer) ? buffer : Object.values(buffer);
   const bytes = new Uint8Array(byteArray);

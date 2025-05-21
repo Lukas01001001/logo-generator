@@ -12,10 +12,6 @@ export default async function EditClientPage(props: {
   });
   const { id } = await props.params;
 
-  /* const client = await prisma.client.findUnique({
-    where: { id: Number(id) },
-    include: { industry: true, logoBlob: true, logoType: true }, // take industry
-  }); */
   const client = await prisma.client.findUnique({
     where: { id: Number(id) },
     select: {

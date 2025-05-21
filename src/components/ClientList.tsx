@@ -1,15 +1,24 @@
 // src/components/ClientList.tsx
 
 "use client";
+//*******************************************************************************************/
+// This component uses Zustand (a lightweight state manager) to persist selected client IDs
+// across navigation. When users select clients via checkboxes, their selections are stored
+// in a global store (useClientSelection.ts).
+// This allows us to:
+// - keep selections when navigating to /clients/[id]/edit, or /clients/new
+// - restore checkbox states after returning from those views
+// - avoid passing state via the URL (e.g., ?ids=...) after the initial navigation
+//*******************************************************************************************/
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
 
 import Spinner from "./ui/Spinner";
 import ClientCard from "./ClientCard";
 import EmptyState from "./ui/EmptyState";
 import ClientListHeader from "./ClientListHeader";
+import { useClientSelection } from "@/store/useClientSelection";
 
 type Client = {
   id: number;
@@ -20,26 +29,23 @@ type Client = {
   logoType?: string | null;
 };
 
-const LIMIT = 10;
+const LIMIT = 20;
 
 export default function ClientList() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  // Layout
-  const [layout, setLayout] = useState<"grid" | "list">("grid");
-  const toggleLayout = () =>
-    setLayout((prev) => (prev === "grid" ? "list" : "grid"));
 
+  const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [clients, setClients] = useState<Client[]>([]);
-  //
-  const [selectedClients, setSelectedClients] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
-
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  //
+  const selectedClients = useClientSelection((s) => s.selectedClients);
+  const toggleClient = useClientSelection((s) => s.toggleClient);
+  const resetSelection = useClientSelection((s) => s.resetSelection);
+
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
     const name = searchParams.get("name");
@@ -49,32 +55,19 @@ export default function ClientList() {
     return params.toString();
   }, [searchParams]);
 
-  // Note the selections from the URL.
-  useEffect(() => {
-    const ids = searchParams.get("ids");
-    if (ids) {
-      const parsed = ids
-        .split(",")
-        .map((id) => parseInt(id.trim()))
-        .filter((id) => !isNaN(id));
-      setSelectedClients(parsed);
-    }
-  }, [searchParams]);
-
-  // ⬇️ Reset clients when changing filters
-  const [resetCounter, setResetCounter] = useState(0);
-
+  // Reset of customer list when changing filters
   useEffect(() => {
     setClients([]);
     setPage(0);
     setHasMore(true);
-    setResetCounter((prev) => prev + 1); // ⬅️ force refetch
-  }, [queryString]);
+  }, [searchParams.get("name"), searchParams.get("industry")]);
 
-  // Download data at each change of `page`.
+  // Downloading customers
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchClients = async () => {
-      if (!hasMore || loading) return;
+      if (loading || (!hasMore && page > 0)) return;
 
       try {
         setLoading(true);
@@ -82,32 +75,35 @@ export default function ClientList() {
         params.set("skip", String(page * LIMIT));
         params.set("limit", String(LIMIT));
 
-        const res = await fetch(`/api/clients?${params.toString()}`);
-        //
+        const res = await fetch(`/api/clients?${params.toString()}`, {
+          signal: controller.signal,
+        });
+
         const data: Client[] = await res.json();
 
-        if (!data || data.length < LIMIT) {
-          setHasMore(false);
-        }
-
-        // remove duplicates
         setClients((prev) => {
           const ids = new Set(prev.map((c) => c.id));
           const newClients = data.filter((c) => !ids.has(c.id));
-          return [...prev, ...newClients];
+          return page === 0 ? newClients : [...prev, ...newClients];
         });
-      } catch (error) {
-        console.error("Failed to fetch clients", error);
-        setHasMore(false);
+
+        if (data.length < LIMIT) {
+          setHasMore(false);
+        }
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.error("❌ Fetch error:", err);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchClients();
-  }, [page, queryString, resetCounter]);
+    return () => controller.abort();
+  }, [page, queryString]);
 
-  // ⬇️ Lazy loading with IntersectionObserver
+  // Infinite scroll
   const lastClientRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (loading || !hasMore) return;
@@ -125,16 +121,6 @@ export default function ClientList() {
     [loading, hasMore]
   );
 
-  const toggleClientSelection = (id: number) => {
-    setSelectedClients((prev) =>
-      prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
-    );
-  };
-
-  const resetClientSelection = () => {
-    setSelectedClients([]);
-  };
-
   const handleGenerate = () => {
     if (selectedClients.length > 0) {
       const query = new URLSearchParams();
@@ -142,7 +128,6 @@ export default function ClientList() {
 
       const name = searchParams.get("name");
       const industry = searchParams.get("industry");
-
       if (name) query.set("name", name);
       if (industry) query.set("industry", industry);
 
@@ -154,12 +139,14 @@ export default function ClientList() {
     <div>
       <ClientListHeader
         selectedCount={selectedClients.length}
-        onReset={resetClientSelection}
+        onReset={resetSelection}
         onGenerate={handleGenerate}
-        layout={layout} // NEW
-        onToggleLayout={toggleLayout} // NEW
+        layout={layout}
+        onToggleLayout={() =>
+          setLayout((prev) => (prev === "grid" ? "list" : "grid"))
+        }
       />
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6"> */}
+
       <div
         className={`grid gap-6 ${
           layout === "grid" ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
@@ -176,7 +163,7 @@ export default function ClientList() {
                 logoBlob={client.logoBlob}
                 logoType={client.logoType}
                 selected={selectedClients.includes(client.id)}
-                toggle={() => toggleClientSelection(client.id)}
+                toggle={() => toggleClient(client.id)}
                 queryString={queryString}
                 selectedIds={selectedClients}
               />
@@ -186,10 +173,7 @@ export default function ClientList() {
       </div>
 
       {!loading && clients.length === 0 && (
-        <EmptyState
-          message="No clients found matching the selected filters."
-          // onClear={() => router.push("/clients")} //
-        />
+        <EmptyState message="No clients found matching the selected filters." />
       )}
 
       {loading && (

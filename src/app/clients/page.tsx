@@ -3,17 +3,12 @@
 import ClientFilters from "@/components/ClientFilters";
 import ClientList from "@/components/ClientList";
 import { prisma } from "@/lib/db";
-//import type { Industry } from "@prisma/client";
+
 import Link from "next/link";
 
 // SSR - industry
 export default async function ClientsPage() {
-  //const industries: Industry[] = await prisma.industry.findMany();
   const industries: { name: string }[] = await prisma.industry.findMany();
-
-  // const industries = await prisma.industry.findMany({
-  //   orderBy: { name: "asc" },
-  // });
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">

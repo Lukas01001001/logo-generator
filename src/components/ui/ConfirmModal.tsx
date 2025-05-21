@@ -8,14 +8,14 @@ type ConfirmModalProps = {
   message: string;
   onConfirm: () => void;
   onCancel: () => void;
-  isDeleting?: boolean; // <-- opcjonalny props
+  isDeleting?: boolean; // <-- optional props
 };
 
 export default function ConfirmModal({
   message,
   onConfirm,
   onCancel,
-  isDeleting = false, // domyślnie false
+  isDeleting = false, // false by default
 }: ConfirmModalProps) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -31,7 +31,7 @@ export default function ConfirmModal({
         <div className="flex justify-center gap-4">
           <button
             onClick={onCancel}
-            disabled={isDeleting} // nie pozwól anulować w trakcie
+            disabled={isDeleting} // do not allow cancellation during
             className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel

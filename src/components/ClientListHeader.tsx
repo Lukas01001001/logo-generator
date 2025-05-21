@@ -8,8 +8,8 @@ type Props = {
   selectedCount: number;
   onReset: () => void;
   onGenerate: () => void;
-  layout: "grid" | "list"; // NEW
-  onToggleLayout: () => void; // NEW
+  layout: "grid" | "list";
+  onToggleLayout: () => void;
 };
 
 export default function ClientListHeader({

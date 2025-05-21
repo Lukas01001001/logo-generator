@@ -51,14 +51,13 @@ export default function ClientFilters({ availableIndustries }: Props) {
         placeholder="Search by name"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        // className="border border-gray-600 bg-gray-800 text-white placeholder-gray-400 p-2 rounded flex-1"
         className="w-full md:w-1/2 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       <select
         value={industry}
         onChange={(e) => setIndustry(e.target.value)}
-        // className="border border-gray-600 bg-gray-800 text-white p-2 rounded flex-1"
+        s
         className="w-full md:w-1/4 border border-gray-600 bg-gray-800 text-white placeholder-gray-400 p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         <option value="">All industries</option>
