@@ -19,6 +19,7 @@ import ClientCard from "./ClientCard";
 import EmptyState from "./ui/EmptyState";
 import ClientListHeader from "./ClientListHeader";
 import { useClientSelection } from "@/store/useClientSelection";
+import { useCanvasStore } from "@/store/useCanvasStore";
 
 type Client = {
   id: number;
@@ -44,7 +45,14 @@ export default function ClientList() {
 
   const selectedClients = useClientSelection((s) => s.selectedClients);
   const toggleClient = useClientSelection((s) => s.toggleClient);
+  //
   const resetSelection = useClientSelection((s) => s.resetSelection);
+  const resetCanvas = useCanvasStore((s) => s.resetCanvas);
+
+  const handleReset = () => {
+    resetSelection(); // cleans up selections
+    resetCanvas([]); // clears canvas to empty (no logo = empty layout)
+  };
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -139,7 +147,7 @@ export default function ClientList() {
     <div>
       <ClientListHeader
         selectedCount={selectedClients.length}
-        onReset={resetSelection}
+        onReset={handleReset}
         onGenerate={handleGenerate}
         layout={layout}
         onToggleLayout={() =>
