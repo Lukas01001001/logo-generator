@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Rnd } from "react-rnd";
 import { useCanvasStore } from "@/store/useCanvasStore";
 
@@ -133,6 +133,14 @@ export default function LogoCanvas({ clients }: Props) {
     setCanvas({ logoBackgrounds: updated });
   };
 
+  // Temporarily disable drag and drop while checking the checkbox
+  const [dragDisabledId, setDragDisabledId] = useState<number | null>(null);
+
+  const disableDragTemporarily = (id: number) => {
+    setDragDisabledId(id);
+    setTimeout(() => setDragDisabledId(null), 100);
+  };
+
   // Checkboxy
   const handleToggleAll = () => {
     if (selectedIds.length === clients.length) {
@@ -253,6 +261,7 @@ export default function LogoCanvas({ clients }: Props) {
                 key={client.id}
                 default={pos}
                 bounds="parent"
+                disableDragging={dragDisabledId === client.id}
                 position={{ x: pos.x, y: pos.y }}
                 size={{ width: pos.width, height: pos.height }}
                 onDragStop={(_, d) =>
@@ -273,7 +282,8 @@ export default function LogoCanvas({ clients }: Props) {
                       type="checkbox"
                       checked={selectedIds.includes(client.id)}
                       onChange={() => handleCheckbox(client.id)}
-                      className="absolute top-1 left-1 w-5 h-5 z-10 cursor-pointer"
+                      onPointerDown={() => disableDragTemporarily(client.id)}
+                      className="absolute top-1 left-1 w-8 h-8 z-10 accent-blue-500 cursor-pointer"
                     />
                     <img
                       src={base64}
