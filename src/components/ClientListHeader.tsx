@@ -21,7 +21,7 @@ export default function ClientListHeader({
 }: Props) {
   return (
     <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
-      <h1 className="text-3xl font-bold text-white">Client List</h1>
+      {/* <h1 className="text-3xl font-bold text-white">Client List</h1> */}
 
       <div className="flex flex-wrap gap-4">
         <button
@@ -31,12 +31,12 @@ export default function ClientListHeader({
           {layout === "grid" ? (
             <>
               <List className="w-4 h-4" />
-              Switch to list view
+              List view
             </>
           ) : (
             <>
               <LayoutGrid className="w-4 h-4" />
-              Switch to grid view
+              Grid view
             </>
           )}
         </button>
