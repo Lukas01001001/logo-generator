@@ -20,7 +20,10 @@ const MIN_SIZE = 240;
 const MAX_SIZE = 2500;
 
 // Hook to auto-size canvas when user doesn't set manually
-function useResponsiveCanvasSize(canvasRef: React.RefObject<HTMLDivElement>) {
+//function useResponsiveCanvasSize(canvasRef: React.RefObject<HTMLDivElement>) {
+function useResponsiveCanvasSize(
+  canvasRef: React.RefObject<HTMLDivElement | null>
+) {
   const setCanvas = useCanvasStore((s) => s.setCanvas);
   const userSetCanvasSize = useCanvasStore((s) => s.userSetCanvasSize);
 
