@@ -11,6 +11,7 @@ type PositionAndSize = {
 };
 
 type CanvasStore = {
+  userSetCanvasSize: boolean;
   canvasWidth: number;
   canvasHeight: number;
   canvasBg: "black" | "white";
@@ -32,10 +33,10 @@ export const useCanvasStore = create<CanvasStore>()(
       logoBackgrounds: {},
       layout: {},
       selectedIds: [],
+      userSetCanvasSize: false, // MUST BE set to default false
       setCanvas: (partial) => set((state) => ({ ...state, ...partial })),
       resetCanvas: (clientIds) =>
-        set(() => {
-          // reset for new customers
+        set((state) => {
           const layout: Record<number, PositionAndSize> = {};
           const logoBackgrounds: Record<number, "black" | "white"> = {};
           clientIds.forEach((id, idx) => {
@@ -43,17 +44,14 @@ export const useCanvasStore = create<CanvasStore>()(
             logoBackgrounds[id] = "black";
           });
           return {
-            canvasWidth: 1200,
-            canvasHeight: 600,
-            canvasBg: "black" as const,
+            ...state,
             logoBackgrounds,
             layout,
             selectedIds: [],
+            userSetCanvasSize: false, // resets to auto
           };
         }),
     }),
-    {
-      name: "logo-canvas-store", // key in localStorage
-    }
+    { name: "logo-canvas-store" }
   )
 );

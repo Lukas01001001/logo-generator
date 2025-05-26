@@ -2,29 +2,61 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Rnd } from "react-rnd";
 import { useCanvasStore } from "@/store/useCanvasStore";
 
+// Types transferred from props
 type Client = {
   id: number;
   name: string;
   logoBlob: string | null;
   logoType: string | null;
 };
+type Props = { clients: Client[] };
+type PositionAndSize = { x: number; y: number; width: number; height: number };
 
-type Props = {
-  clients: Client[];
-};
+const MIN_SIZE = 240;
+const MAX_SIZE = 2500;
 
-type PositionAndSize = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-};
+// Hook to auto-size canvas when user doesn't set manually
+function useResponsiveCanvasSize(canvasRef: React.RefObject<HTMLDivElement>) {
+  const setCanvas = useCanvasStore((s) => s.setCanvas);
+  const userSetCanvasSize = useCanvasStore((s) => s.userSetCanvasSize);
+
+  // Recalculate on input and at window resize when no size is forced
+  useEffect(() => {
+    if (userSetCanvasSize) return;
+    const updateSize = () => {
+      if (userSetCanvasSize) return;
+      const width = canvasRef.current
+        ? canvasRef.current.offsetWidth
+        : Math.min(window.innerWidth * 0.95, 1200);
+      const height = Math.max(MIN_SIZE, Math.round(width * 0.5));
+      setCanvas({ canvasWidth: Math.round(width), canvasHeight: height });
+    };
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, [setCanvas, userSetCanvasSize, canvasRef]);
+
+  // Recalculate on return to auto
+  useEffect(() => {
+    if (!userSetCanvasSize) {
+      const width = canvasRef.current
+        ? canvasRef.current.offsetWidth
+        : Math.min(window.innerWidth * 0.95, 1200);
+      const height = Math.max(MIN_SIZE, Math.round(width * 0.5));
+      setCanvas({ canvasWidth: Math.round(width), canvasHeight: height });
+    }
+    // eslint-disable-next-line
+  }, [userSetCanvasSize]);
+}
 
 export default function LogoCanvas({ clients }: Props) {
+  const canvasRef = useRef<HTMLDivElement | null>(null);
+  useResponsiveCanvasSize(canvasRef);
+
   const {
     canvasWidth,
     canvasHeight,
@@ -34,35 +66,68 @@ export default function LogoCanvas({ clients }: Props) {
     selectedIds,
     setCanvas,
     resetCanvas,
+    userSetCanvasSize,
   } = useCanvasStore();
 
-  // ---
-  // Synchronizes the global canvas layout with the state of the clients (clients[] from props):
-  // - Adds new logos to the layout and gives them default positions/backgrounds (when you return from the list and select logos).
-  // - Removes logos that are no longer selected from the layout, background and selectedIds
-  // - DOES NOT reset the entire layout - everything that was already laid out stays unchanged
-  // This allows you to return from the customer list to /generate without losing the layout and composition
-  // ---
+  // Automatic number inputs (no zeros left, no 1, 2, 0, etc)
+  const [widthInput, setWidthInput] = useState(canvasWidth.toString());
+  const [heightInput, setHeightInput] = useState(canvasHeight.toString());
 
-  // Key logic: merge layout and delete non-existent logos from layout!
+  useEffect(() => setWidthInput(canvasWidth.toString()), [canvasWidth]);
+  useEffect(() => setHeightInput(canvasHeight.toString()), [canvasHeight]);
+
+  // Input handling, UX
+  const handleWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/^0+/, "");
+    setWidthInput(val);
+    const num = Number(val);
+    if (!isNaN(num) && num >= MIN_SIZE && num <= MAX_SIZE) {
+      setCanvas({ canvasWidth: num, userSetCanvasSize: true });
+    }
+  };
+  const handleHeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value.replace(/^0+/, "");
+    setHeightInput(val);
+    const num = Number(val);
+    if (!isNaN(num) && num >= MIN_SIZE && num <= MAX_SIZE) {
+      setCanvas({ canvasHeight: num, userSetCanvasSize: true });
+    }
+  };
+  const handleWidthBlur = () => {
+    const num = Number(widthInput);
+    if (!widthInput || isNaN(num) || num < MIN_SIZE || num > MAX_SIZE) {
+      setCanvas({ canvasWidth: MIN_SIZE, userSetCanvasSize: true });
+      setWidthInput(MIN_SIZE.toString());
+    }
+  };
+  const handleHeightBlur = () => {
+    const num = Number(heightInput);
+    if (!heightInput || isNaN(num) || num < MIN_SIZE || num > MAX_SIZE) {
+      setCanvas({ canvasHeight: MIN_SIZE, userSetCanvasSize: true });
+      setHeightInput(MIN_SIZE.toString());
+    }
+  };
+
+  // Reset support (resets layout, logo backgrounds and returns to auto-size)
+  const handleReset = () => {
+    //setCanvas({ userSetCanvasSize: false });
+    setCanvas({ userSetCanvasSize: false, canvasBg: "black" }); // <-- reset canvasBg: "black"
+    resetCanvas(clients.map((c) => c.id));
+  };
+
+  // Layout support - logo synchronization on canvas (when changing clients)
   useEffect(() => {
     const clientIds = clients.map((c) => c.id);
-
-    // 1. Add all new logs to the state (merge)
     const currentLayoutIds = Object.keys(layout).map(Number);
 
-    // IDs of logos that we don't yet have in the layout state
     const missingIds = clientIds.filter((id) => !currentLayoutIds.includes(id));
-    // IDs of logos that are no longer needed (they are not in the clients).
     const extraIds = currentLayoutIds.filter((id) => !clientIds.includes(id));
 
     if (missingIds.length > 0 || extraIds.length > 0) {
-      // Add missing ones and remove redundant ones
-      // 1. Layout
+      // Add missing and remove extra
       const newLayout: Record<number, PositionAndSize> = {};
       let baseIdx = 0;
       clientIds.forEach((id) => {
-        //if (layout[id]) {
         if (layout.hasOwnProperty(id)) {
           newLayout[id] = layout[id];
         } else {
@@ -76,10 +141,8 @@ export default function LogoCanvas({ clients }: Props) {
         }
       });
 
-      // 2. Logo background colors
       const newLogoBackgrounds: Record<number, "black" | "white"> = {};
       clientIds.forEach((id) => {
-        //if (logoBackgrounds[id]) {
         if (id in logoBackgrounds) {
           newLogoBackgrounds[id] = logoBackgrounds[id];
         } else {
@@ -87,7 +150,6 @@ export default function LogoCanvas({ clients }: Props) {
         }
       });
 
-      // 3. selectedIds – leave only those that are still on the canvas
       const newSelectedIds = selectedIds.filter((id) => clientIds.includes(id));
 
       setCanvas({
@@ -96,35 +158,23 @@ export default function LogoCanvas({ clients }: Props) {
         selectedIds: newSelectedIds,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [JSON.stringify(clients.map((c) => c.id))]);
 
-  // Size update
-  const handleHeight = (value: number) => setCanvas({ canvasHeight: value });
-  const handleWidth = (value: number) => setCanvas({ canvasWidth: value });
-
-  // Update layout
+  // Drag/resize handling of logos
   const updateClientLayout = (
     id: number,
     changes: Partial<PositionAndSize>
   ) => {
-    setCanvas({
-      layout: {
-        ...layout,
-        [id]: { ...layout[id], ...changes },
-      },
-    });
+    setCanvas({ layout: { ...layout, [id]: { ...layout[id], ...changes } } });
   };
 
-  // Toggle canvass background
+  // Toggle background canvas
   const toggleCanvasBackground = () => {
     setCanvas({ canvasBg: canvasBg === "black" ? "white" : "black" });
   };
 
-  // Reset everything
-  const handleReset = () => resetCanvas(clients.map((c) => c.id));
-
-  // Switch logo backgrounds
+  // Toggle background logos
   const handleToggleLogoBGs = () => {
     const updated = { ...logoBackgrounds };
     selectedIds.forEach((id) => {
@@ -133,7 +183,7 @@ export default function LogoCanvas({ clients }: Props) {
     setCanvas({ logoBackgrounds: updated });
   };
 
-  // Temporarily disable drag and drop while checking the checkbox
+  // Checkboxes: handling logo selection
   const [dragDisabledId, setDragDisabledId] = useState<number | null>(null);
 
   const disableDragTemporarily = (id: number) => {
@@ -141,7 +191,6 @@ export default function LogoCanvas({ clients }: Props) {
     setTimeout(() => setDragDisabledId(null), 100);
   };
 
-  // Checkboxy
   const handleToggleAll = () => {
     if (selectedIds.length === clients.length) {
       setCanvas({ selectedIds: [] });
@@ -149,7 +198,6 @@ export default function LogoCanvas({ clients }: Props) {
       setCanvas({ selectedIds: clients.map((c) => c.id) });
     }
   };
-
   const handleCheckbox = (id: number) => {
     if (selectedIds.includes(id)) {
       setCanvas({ selectedIds: selectedIds.filter((x) => x !== id) });
@@ -158,55 +206,66 @@ export default function LogoCanvas({ clients }: Props) {
     }
   };
 
+  // === UI ===
   return (
     <div className="mb-8">
-      {/* Sliders + Buttons */}
+      {/* Sliders + inputs + buttons */}
       <div className="flex flex-col lg:flex-row lg:flex-wrap gap-4 mb-4 text-white items-start lg:items-center">
-        {/* Canvas Height input */}
+        {/* Height */}
         <div className="flex items-center gap-2 flex-1 w-full">
           <label className="whitespace-nowrap">Canvas Height:</label>
           <input
             type="range"
-            min={240}
-            max={2500}
+            min={MIN_SIZE}
+            max={MAX_SIZE}
             value={canvasHeight}
-            onChange={(e) => handleHeight(Number(e.target.value))}
+            onChange={(e) =>
+              setCanvas({
+                canvasHeight: Number(e.target.value),
+                userSetCanvasSize: true,
+              })
+            }
             className="flex-1"
           />
           <input
             type="number"
-            min={240}
-            max={2500}
-            value={canvasHeight}
-            onChange={(e) => handleHeight(Number(e.target.value))}
+            min={MIN_SIZE}
+            max={MAX_SIZE}
+            value={heightInput}
+            onChange={handleHeightChange}
+            onBlur={handleHeightBlur}
             className="w-20 px-2 py-1 rounded text-white border border-amber-50"
           />
           <span>px</span>
         </div>
-
-        {/* Canvas Width input */}
+        {/* Width */}
         <div className="flex items-center gap-2 flex-1 w-full">
           <label className="whitespace-nowrap">Canvas Width:</label>
           <input
             type="range"
-            min={240}
-            max={2500}
+            min={MIN_SIZE}
+            max={MAX_SIZE}
             value={canvasWidth}
-            onChange={(e) => handleWidth(Number(e.target.value))}
+            onChange={(e) =>
+              setCanvas({
+                canvasWidth: Number(e.target.value),
+                userSetCanvasSize: true,
+              })
+            }
             className="flex-1"
           />
           <input
             type="number"
-            min={240}
-            max={2500}
-            value={canvasWidth}
-            onChange={(e) => handleWidth(Number(e.target.value))}
+            min={MIN_SIZE}
+            max={MAX_SIZE}
+            value={widthInput}
+            onChange={handleWidthChange}
+            onBlur={handleWidthBlur}
             className="w-20 px-2 py-1 rounded text-white border border-amber-50"
           />
           <span>px</span>
         </div>
-
-        {/* Buttons Group */}
+        {/* Buttons */}
         <div className="flex flex-col md:flex-row lg:flex-row lg:items-center gap-4 w-full lg:w-auto">
           <button
             onClick={handleToggleLogoBGs}
@@ -214,47 +273,48 @@ export default function LogoCanvas({ clients }: Props) {
           >
             Toggle Logo BGs
           </button>
-
           <button
             onClick={toggleCanvasBackground}
             className="w-full lg:w-auto bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded shadow"
           >
             {canvasBg === "black" ? "White Background" : "Black Background"}
           </button>
-
           <button
             onClick={handleReset}
-            className="w-full lg:w-auto  bg-yellow-500 hover:bg-yellow-600  text-black font-semibold px-4 py-2 rounded shadow"
+            className="w-full lg:w-auto bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded shadow"
           >
             Reset All
           </button>
         </div>
       </div>
 
-      {/* Canvas area */}
+      {/* CANVAS */}
       <div
+        ref={canvasRef}
         className={`relative border border-yellow-600 rounded overflow-x-auto ${
           canvasBg === "black" ? "bg-black" : "bg-white"
         }`}
-        style={{ width: canvasWidth, height: canvasHeight }}
+        style={
+          userSetCanvasSize
+            ? { width: canvasWidth, height: canvasHeight }
+            : { width: "100%", maxWidth: canvasWidth, height: canvasHeight }
+        }
         id="logo-canvas"
       >
-        {/* Toggle all checkbox button - hidden during export */}
+        {/* Button: select all/unselect all */}
         <button
           onClick={handleToggleAll}
           className="canvas-toggle-btn absolute top-4 right-4 border border-yellow-600 bg-white/60 text-black font-semibold text-sm px-3 py-1 rounded shadow z-50"
         >
           {selectedIds.length === clients.length ? "Uncheck All" : "Check All"}
         </button>
-
+        {/* LOGO */}
         {clients.map((client) => {
           const base64 =
             client.logoBlob && client.logoType
               ? `data:${client.logoType};base64,${client.logoBlob}`
               : null;
-
           const pos = layout[client.id];
-
           return (
             pos && (
               <Rnd
