@@ -31,12 +31,12 @@ export default function ClientListHeader({
           {layout === "grid" ? (
             <>
               <List className="w-4 h-4" />
-              List view
+              List View
             </>
           ) : (
             <>
               <LayoutGrid className="w-4 h-4" />
-              Grid view
+              Grid View
             </>
           )}
         </button>

@@ -22,7 +22,7 @@ export default async function ClientsPage() {
           href="/clients/new"
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2 rounded-md whitespace-nowrap min-w-[150px] text-center"
         >
-          Add new client
+          Add New Client
         </Link>
       </div>
 

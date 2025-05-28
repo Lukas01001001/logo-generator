@@ -25,9 +25,9 @@ export default function BackToListButton() {
   return (
     <button
       onClick={handleClick}
-      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+      className="bg-blue-600 hover:bg-blue-700 font-semibold text-white px-4 py-2 rounded"
     >
-      ← Back to list
+      ← Back to List
     </button>
   );
 }

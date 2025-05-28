@@ -11,7 +11,7 @@ export default async function NewClientPage() {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold text-center mb-8 text-white">
-        Add new client
+        Add New Client
       </h1>
       <ClientForm availableIndustries={industries} />
     </div>

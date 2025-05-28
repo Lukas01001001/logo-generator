@@ -69,9 +69,9 @@ export default function ClientFilters({ availableIndustries }: Props) {
 
       <button
         onClick={handleClear}
-        className="border border-yellow-500 text-yellow-500 hover:bg-gray-600 hover:text-white p-2 rounded md:w-auto"
+        className="border border-yellow-500 text-yellow-500 font-semibold hover:bg-gray-700 hover:text-white p-2 rounded-md md:w-auto"
       >
-        Clear filters
+        Clear Filters
       </button>
     </div>
   );

@@ -274,19 +274,19 @@ export default function LogoCanvas({ clients }: Props) {
             onClick={handleToggleLogoBGs}
             className="w-full lg:w-auto bg-purple-700 hover:bg-purple-600 text-white font-semibold px-4 py-2 rounded shadow"
           >
-            Toggle Logo BGs
+            Switch Logo BGs
           </button>
           <button
             onClick={toggleCanvasBackground}
             className="w-full lg:w-auto bg-gray-600 hover:bg-gray-500 text-white font-semibold px-4 py-2 rounded shadow"
           >
-            {canvasBg === "black" ? "White Background" : "Black Background"}
+            {canvasBg === "black" ? "White Canvas" : "Black Canvas"}
           </button>
           <button
             onClick={handleReset}
             className="w-full lg:w-auto bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded shadow"
           >
-            Reset All
+            Reset Canvas
           </button>
         </div>
       </div>
@@ -307,9 +307,11 @@ export default function LogoCanvas({ clients }: Props) {
         {/* Button: select all/unselect all */}
         <button
           onClick={handleToggleAll}
-          className="canvas-toggle-btn absolute top-4 right-4 border border-yellow-600 bg-white/60 text-black font-semibold text-sm px-3 py-1 rounded shadow z-50"
+          className="canvas-toggle-btn absolute top-4 right-4 border border-yellow-600 bg-white/60 text-black  hover:bg-gray-300 font-semibold text-sm px-3 py-1 rounded shadow z-50"
         >
-          {selectedIds.length === clients.length ? "Uncheck All" : "Check All"}
+          {selectedIds.length === clients.length
+            ? "Deselect All"
+            : "Select All"}
         </button>
         {/* LOGO */}
         {clients.map((client) => {

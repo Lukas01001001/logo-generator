@@ -31,7 +31,7 @@ export default async function EditClientPage(props: {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold text-center mb-8 text-white">
-        Edit client
+        Edit Client
       </h1>
       <ClientForm client={client} isEdit availableIndustries={industries} />
     </div>

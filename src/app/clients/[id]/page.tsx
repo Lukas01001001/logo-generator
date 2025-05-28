@@ -1,3 +1,5 @@
+// src/app/clients/[id]/page.tsx
+
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
@@ -67,7 +69,7 @@ export default async function ClientDetailPage({ params }: Props) {
           <BackToListButton />
           <Link
             href={`/clients/${client.id}/edit`}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-2 rounded-md shadow transition-all text-center"
+            className="bg-yellow-500 hover:bg-yellow-600 font-semibold text-white px-6 py-2 rounded-md shadow transition-all text-center"
           >
             Edit
           </Link>
